@@ -14,7 +14,7 @@ import java.util.HashMap;
 @RestController
 @Slf4j
 public class FilmController {
-    private final LocalDate DATA_OF_RELEASE = LocalDate.parse("1895-12-28");
+    private final LocalDate localDate = LocalDate.parse("1895-12-28");
     private int nextId = 1;
     private final HashMap<Integer, Film> films = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class FilmController {
     private boolean validator(@NonNull Film film) {
         return !film.getName().isEmpty()
                 && film.getDescription().length() < 201
-                && film.getReleaseDate().isAfter(DATA_OF_RELEASE)
+                && film.getReleaseDate().isAfter(localDate)
                 && film.getDuration() > 0;
     }
 }
