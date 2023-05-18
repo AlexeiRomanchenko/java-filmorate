@@ -7,14 +7,14 @@ import ru.yandex.practicum.filmorate.exception.FilmAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 
 @RestController
 @Slf4j
 public class FilmController {
-    private final LocalDate localDate = LocalDate.parse("1895-12-28");
+    private static final LocalDateTime localDateTime = LocalDateTime.of(1895, 12, 28, 0, 0);
     private int nextId = 1;
     private final HashMap<Integer, Film> films = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class FilmController {
     private boolean validator(@NonNull Film film) {
         return !film.getName().isEmpty()
                 && film.getDescription().length() < 201
-                && film.getReleaseDate().isAfter(localDate)
+                && film.getReleaseDate().isAfter(localDateTime)
                 && film.getDuration() > 0;
     }
 }
