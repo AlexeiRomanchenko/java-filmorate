@@ -20,6 +20,7 @@ public class FilmController {
 
     @GetMapping("/films")
     public Collection<Film> getFilms() {
+        log.info("Получен запрос на получение всех фильмов");
         return films.values();
     }
 
