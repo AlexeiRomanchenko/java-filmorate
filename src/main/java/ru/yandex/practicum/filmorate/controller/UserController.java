@@ -62,7 +62,10 @@ public class UserController {
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        return !user.getLogin().isEmpty() && user.getEmail().contains("@") && !user.getEmail().isEmpty()
-                && !user.getLogin().contains(" ") && user.getBirthday().isBefore(LocalDate.now());
+        return !user.getLogin().isEmpty()
+                && user.getEmail().contains("@")
+                && !user.getEmail().isEmpty()
+                && !user.getLogin().contains(" ")
+                && user.getBirthday().isBefore(LocalDate.now());
     }
 }
