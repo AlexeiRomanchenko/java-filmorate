@@ -4,8 +4,10 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -20,7 +22,7 @@ public class UserController {
 
     @GetMapping("/users")
     public Collection<User> getUsers() {
-        log.info("Получен запрос на получение всех пользователей");
+        log.info(LogMessagesUsers.GET_ALL_USERS_REQUEST.getMessage());
         return users.values();
     }
 
@@ -28,18 +30,18 @@ public class UserController {
     public User create(@RequestBody User user) {
         if (validator(user)) {
             if (users.get(user.getId()) != null) {
-                log.info("Пользователь " + user.toString() + " уже есть в базе");
+                log.info(LogMessagesUsers.USER_ALREADY_EXISTS.getMessage() + user.toString());
                 throw new UserAlreadyExistException();
             }
             user.setId(nextId);
             users.put(user.getId(), user);
             nextId++;
-            log.info("Добавлен пользователь: " + user.toString());
+            log.info(LogMessagesUsers.USER_ADD + user.toString());
             return user;
         } else {
-            log.error("Пользователь " + user.toString() + " не прошел валидацию");
-            throw new ValidationException("Валидация не пройдена");
+            validationFailed(user);
         }
+        return user;
     }
 
     @PutMapping(value = "/users")
@@ -47,26 +49,39 @@ public class UserController {
         if (validator(user)) {
             if (users.get(user.getId()) != null) {
                 users.put(user.getId(), user);
-                log.info("Обновлен пользователь " + user.toString());
+                log.info(LogMessagesUsers.USER_DATA_UPDATED + user.toString());
                 return user;
             } else {
-                log.error("Пользователь " + user.toString() + " не найден");
-                throw new UserAlreadyExistException("не найден пользователь");
+                validationFailed(user);
             }
         } else {
-            log.error("Пользователь " + user.toString() + " не прошел валидацию");
-            throw new ValidationException("Валидация не пройдена");
+            validationFailed(user);
         }
+        return user;
     }
 
     private boolean validator(@NonNull User user) {
-        if (user.getName() == null || user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        return !user.getLogin().isEmpty()
-                && user.getEmail().contains("@")
-                && !user.getEmail().isEmpty()
-                && !user.getLogin().contains(" ")
-                && user.getBirthday().isBefore(LocalDate.now());
+
+        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            return false;
+        }
+
+        if (!user.getEmail().contains("@") || user.getEmail().isBlank()) {
+            return false;
+        }
+
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void validationFailed(User user) throws ValidationException {
+        log.error(LogMessagesUsers.USER_NO_FOUND + user.toString());
+        throw new UserAlreadyExistException(LogMessagesUsers.USER_NO_FOUND.getMessage());
     }
 }
