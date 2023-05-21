@@ -3,17 +3,20 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 
+@Validated
 @RestController
 @Slf4j
 public class UserController {
@@ -27,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) {
+    public User create(@Valid @NotNull @RequestBody User user) {
         if (validator(user)) {
             if (users.get(user.getId()) != null) {
                 log.info(LogMessagesUsers.USER_ALREADY_EXISTS.getMessage() + user.toString());
@@ -36,52 +39,49 @@ public class UserController {
             user.setId(nextId);
             users.put(user.getId(), user);
             nextId++;
-            log.info(LogMessagesUsers.USER_ADD + user.toString());
-            return user;
-        } else {
-            validationFailed(user);
+            log.info(LogMessagesUsers.USER_ADD.getMessage() + user.toString());
         }
         return user;
     }
 
     @PutMapping(value = "/users")
-    public User update(@RequestBody User user) {
-        if (validator(user)) {
-            if (users.get(user.getId()) != null) {
-                users.put(user.getId(), user);
-                log.info(LogMessagesUsers.USER_DATA_UPDATED + user.toString());
-                return user;
-            } else {
-                validationFailed(user);
-            }
+    public User update(@Valid @RequestBody User user) {
+        checkNameUser(user);
+        if (users.get(user.getId()) != null) {
+            users.put(user.getId(), user);
+            log.info(LogMessagesUsers.USER_DATA_UPDATED.getMessage() + user.toString());
         } else {
             validationFailed(user);
         }
         return user;
     }
 
-    private boolean validator(@NonNull User user) {
+    private void checkNameUser(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+    }
+
+    private boolean validator(@NonNull User user) {
+        checkNameUser(user);
 
         if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            return false;
+            throw new ValidationException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
         }
 
         if (!user.getEmail().contains("@") || user.getEmail().isBlank()) {
-            return false;
+            throw new ValidationException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            return false;
+            throw new ValidationException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
         }
 
         return true;
     }
 
     private void validationFailed(User user) throws ValidationException {
-        log.error(LogMessagesUsers.USER_NO_FOUND + user.toString());
-        throw new UserAlreadyExistException(LogMessagesUsers.USER_NO_FOUND.getMessage());
+        log.error(LogMessagesUsers.VALIDATION_FAILED.getMessage() + user.toString());
+        throw new UserAlreadyExistException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
     }
 }
