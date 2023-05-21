@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.log.LogMessage;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
