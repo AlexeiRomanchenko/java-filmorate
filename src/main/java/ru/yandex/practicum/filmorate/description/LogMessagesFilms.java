@@ -9,8 +9,6 @@ public enum LogMessagesFilms {
     FILM_NO_FOUND("Фильм не найден: "),
     FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: ");
 
-
-
     private final String message;
 
     LogMessagesFilms(String message) {

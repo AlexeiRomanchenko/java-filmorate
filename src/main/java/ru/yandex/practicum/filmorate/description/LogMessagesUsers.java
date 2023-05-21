@@ -8,8 +8,6 @@ public enum LogMessagesUsers {
     USER_NO_FOUND("Пользователь не найден: "),
     USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: ");
 
-
-
     private final String message;
 
     LogMessagesUsers(String message) {
