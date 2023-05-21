@@ -42,7 +42,7 @@ public class UserTest {
     }
 
     @Test
-    void shouldNoCreateUserIsBirthdayFuture() {////////
+    void shouldNoCreateUserIsBirthdayFuture() {
         User user = User.builder()
                 .id(2)
                 .name("Андрей")
@@ -81,6 +81,7 @@ public class UserTest {
         assertEquals("[User(id=1, email=privet@ya.ru, login=Andry, name=Andry, birthday=1958-12-30)]",
                 String.valueOf(userController.getUsers()));
     }
+
     @Test
     void shouldUpdateUser() {
         User user = User.builder()
