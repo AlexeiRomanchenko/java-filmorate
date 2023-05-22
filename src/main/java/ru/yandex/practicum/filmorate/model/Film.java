@@ -14,11 +14,10 @@ import javax.validation.constraints.Size;
 public class Film {
     @Positive
     private Integer id;
-    @Positive
-    private Integer duration;
+    private String name;
     @Size(max = 200)
     private String description;
-    private String name;
     private LocalDate releaseDate;
-
+    @Positive
+    private Integer duration;
 }
