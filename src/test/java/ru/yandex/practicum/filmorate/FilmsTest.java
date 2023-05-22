@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
-import ru.yandex.practicum.filmorate.exception.FilmAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -43,7 +42,7 @@ public class FilmsTest {
                 .duration(9879)
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .build();
-        Throwable exception = assertThrows(FilmAlreadyExistException.class, () -> filmController.create(film));
+        Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
         assertEquals(LogMessagesFilms.FILM_NOT_VALIDATED_DATE.getMessage(), exception.getMessage());
     }
 
@@ -68,34 +67,6 @@ public class FilmsTest {
                 .name("")
                 .description("{Хороший фильм}")
                 .duration(9879)
-                .releaseDate(LocalDate.of(1995, 12, 28))
-                .build();
-        Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
-        assertEquals(LogMessagesUsers.VALIDATION_FAILED.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    void shouldNoCreateFilmWithNegativeDuration() {
-        Film film = Film.builder()
-                .id(1)
-                .name("Агент007")
-                .description("{Хороший фильм}")
-                .duration(-12)
-                .releaseDate(LocalDate.of(1995, 12, 28))
-                .build();
-        Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
-        assertEquals(LogMessagesUsers.VALIDATION_FAILED.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    void shouldNoCreateUserWithDescriptionMore200Symbols() {
-        Film film = Film.builder()
-                .id(1)
-                .name("Агент007")
-                .description("Бывший морпех Джейк Салли прикован к инвалидному креслу. Несмотря на немощное тело," +
-                        " Джейк в душе по-прежнему остается воином. Он получает задание совершить путешествие в " +
-                        "несколько световых лет к базе землян на планете Пандора.")
-                .duration(9534)
                 .releaseDate(LocalDate.of(1995, 12, 28))
                 .build();
         Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));

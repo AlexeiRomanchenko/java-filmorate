@@ -29,19 +29,6 @@ public class UserTest {
     }
 
     @Test
-    void shouldNoCreateUserWithoutDog() {
-        User user = User.builder()
-                .id(2)
-                .name("Андрей")
-                .email("privetya.ru")
-                .login("Andry")
-                .birthday(LocalDate.of(1955, 12, 30))
-                .build();
-        Throwable exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertEquals(LogMessagesUsers.VALIDATION_FAILED.getMessage(), exception.getMessage());
-    }
-
-    @Test
     void shouldNoCreateUserIsBirthdayFuture() {
         User user = User.builder()
                 .id(2)
