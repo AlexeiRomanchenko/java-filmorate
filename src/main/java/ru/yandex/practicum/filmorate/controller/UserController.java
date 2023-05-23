@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @NotNull @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         validator(user);
 
         if (users.get(user.getId()) != null) {
@@ -57,7 +55,7 @@ public class UserController {
         return user;
     }
 
-    private void validator(@NonNull User user) {
+    private void validator(User user) {
 
         if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             throw new ValidationException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
@@ -71,7 +69,7 @@ public class UserController {
     }
 
     private void checkNameUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (user.getLogin() != null || user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }

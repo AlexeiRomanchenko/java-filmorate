@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
@@ -59,7 +58,7 @@ public class FilmController {
         return film;
     }
 
-    private void validator(@NonNull Film film) {
+    private void validator(Film film) {
 
         if (film.getName().isBlank()) {
             throw new ValidationException(LogMessagesFilms.VALIDATION_FAILED.getMessage());
