@@ -33,7 +33,7 @@ public class FilmController {
 
         if (films.get(film.getId()) != null) {
             log.info(LogMessagesFilms.FILM_ALREADY_EXISTS.getMessage() + film.toString());
-            throw new FilmAlreadyExistException();
+            throw new FilmAlreadyExistException(LogMessagesFilms.FILM_ALREADY_EXISTS.getMessage());
         }
         film.setId(nextId);
         films.put(film.getId(), film);

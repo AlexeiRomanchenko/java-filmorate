@@ -32,7 +32,7 @@ public class UserController {
 
         if (users.get(user.getId()) != null) {
             log.info(LogMessagesUsers.USER_ALREADY_EXISTS.getMessage() + user.toString());
-            throw new UserAlreadyExistException();
+            throw new UserAlreadyExistException(LogMessagesUsers.USER_ALREADY_EXISTS.getMessage());
         }
         user.setId(nextId);
         users.put(user.getId(), user);
@@ -57,7 +57,7 @@ public class UserController {
 
     private void validator(User user) {
 
-        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+        if (user.getLogin() != null && user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             throw new ValidationException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
         }
 
@@ -69,7 +69,7 @@ public class UserController {
     }
 
     private void checkNameUser(User user) {
-        if (user.getLogin() != null && user.getName() == null || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }
