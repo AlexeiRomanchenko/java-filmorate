@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Slf4j
 public class ValidatorFilm {
     private static final LocalDate localDate = LocalDate.of(1895, 12, 28);
+
     protected static void validator(Film film) {
 
         if (film.getName().isBlank()) {
