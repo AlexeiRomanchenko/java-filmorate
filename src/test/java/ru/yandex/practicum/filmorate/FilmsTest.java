@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @RestController
 public class FilmsTest {
     InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-    FilmService filmService= new FilmService(inMemoryFilmStorage);
+    FilmService filmService = new FilmService(inMemoryFilmStorage);
     FilmController filmController = new FilmController(filmService, inMemoryFilmStorage);
 
     @Test
