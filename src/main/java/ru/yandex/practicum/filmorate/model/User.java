@@ -33,7 +33,7 @@ public class User {
         friends.add(id);
     }
 
-    public void deleteFriendById(long id){
+    public void deleteFriendById(long id) {
         friends.remove(id);
     }
 }
