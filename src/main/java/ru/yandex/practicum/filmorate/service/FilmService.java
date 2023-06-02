@@ -35,7 +35,7 @@ public class FilmService {
 
     public void addLike(int id, int userId) {
 
-        if (findFilm(id).getLikes()!= null && findFilm(id).getLikes().contains((long) userId)) {
+        if (findFilm(id).getLikes() != null && findFilm(id).getLikes().contains((long) userId)) {
             throw new ActionHasAlreadyDoneException(LogMessagesFilms.USER_ALREDY_ADD_LIKE.getMessage());
         } else {
             findFilm(id).setLikes(userId);
@@ -57,12 +57,11 @@ public class FilmService {
 
         for (Film film : filmStorage.getFilms()) {
 
-            if(film.getLikes() != null) {
+            if (film.getLikes() != null) {
                 likes.put(film.getId(), film.getLikes().size());
-            }
-            else {
-                int NO_LIKES = 0;
-                likes.put(film.getId(), NO_LIKES);
+            } else {
+                int zero = 0;
+                likes.put(film.getId(), zero);
             }
 
         }
