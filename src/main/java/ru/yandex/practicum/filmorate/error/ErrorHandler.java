@@ -26,6 +26,7 @@ public class ErrorHandler {
         log.info(LogError.OBJECT_NOT_FOUND.getMessage());
         return new ErrorResponse(e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleSearchObjectNotFoundException(final ObjectNotFoundException e) {
