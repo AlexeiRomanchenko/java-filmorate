@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
