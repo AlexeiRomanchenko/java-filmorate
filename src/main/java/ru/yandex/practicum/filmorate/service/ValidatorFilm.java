@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class ValidatorFilm {
     private static final LocalDate localDate = LocalDate.of(1895, 12, 28);
 
-    protected static void validator(Film film) {
+    public static void validator(Film film) {
 
         if (film.getName().isBlank()) {
             throw new ValidationException(LogMessagesFilms.VALIDATION_FAILED.getMessage());
@@ -25,7 +25,7 @@ public class ValidatorFilm {
 
     }
 
-    protected static void validationFailed(Film film) throws ValidationException {
+    public static void validationFailed(Film film) throws ValidationException {
         log.error(LogMessagesFilms.VALIDATION_FAILED.getMessage() + film.toString());
         throw new FilmAlreadyExistException(LogMessagesFilms.VALIDATION_FAILED.getMessage());
 

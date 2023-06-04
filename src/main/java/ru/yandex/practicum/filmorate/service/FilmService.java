@@ -9,21 +9,32 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    Map<Integer, Integer> likes = new HashMap<>();
-    ArrayList<Film> popularFilms = new ArrayList<>();
     private final FilmStorage filmStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
+    }
+
+    public Film createFilm(Film film) {
+        ValidatorFilm.validator(film);
+        filmStorage.create(film);
+        return film;
+    }
+
+    public Film update(Film film) {
+        ValidatorFilm.validator(film);
+        filmStorage.update(film);
+        return film;
+    }
+
+    public Collection<Film> getFilms() {
+        return filmStorage.getFilms();
     }
 
     public Film findFilm(int id) {
@@ -52,37 +63,11 @@ public class FilmService {
 
     }
 
-    public ArrayList<Film> getPopularFilms(int count) {
-        popularFilms.clear();
-
-        for (Film film : filmStorage.getFilms()) {
-
-            if (film.getLikes() != null) {
-                likes.put(film.getId(), film.getLikes().size());
-            } else {
-                int zero = 0;
-                likes.put(film.getId(), zero);
-            }
-
-        }
-
-        likes = likes.entrySet()
-                .stream().sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+    public List<Film> getPopularFilms(int count) {
+        return filmStorage.getFilms().stream()
+                .sorted(Comparator.comparingLong(film -> film.getLikes().size()))
                 .limit(count)
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
-
-        for (Integer id : likes.keySet()) {
-
-            if (popularFilms.isEmpty() || !popularFilms.contains(findFilm(id))) {
-                popularFilms.add(findFilm(id));
-            }
-
-        }
-        return popularFilms;
+                .collect(Collectors.toList());
     }
 
 }

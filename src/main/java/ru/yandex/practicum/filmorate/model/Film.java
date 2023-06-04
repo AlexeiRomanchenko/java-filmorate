@@ -12,7 +12,6 @@ import javax.validation.constraints.Size;
 
 @Data
 @Builder
-
 public class Film {
     @Positive
     private Integer id;
@@ -25,13 +24,23 @@ public class Film {
     private Integer duration;
 
     public void setLikes(long id) {
-        if (likes == null) {
-            likes = new HashSet<>();
-        }
+        checkOnNullLikes();
         likes.add(id);
+    }
+
+    public Set<Long> getLikes() {
+        checkOnNullLikes();
+        return likes;
     }
 
     public void deleteLike(long id) {
         likes.remove(id);
     }
+
+    private void checkOnNullLikes() {
+        if (likes == null) {
+            likes = new HashSet<>();
+        }
+    }
+
 }

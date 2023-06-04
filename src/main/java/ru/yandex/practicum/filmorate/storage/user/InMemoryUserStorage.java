@@ -2,12 +2,10 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,9 +29,8 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(users.values());
     }
 
-    public User create(@Valid @RequestBody User user) {
-        log.info("Создание пользователя");
-        ValidatorUser.validator(user);
+    public User create(User user) {
+        log.info(LogMessagesUsers.CREATE_USER.getMessage());
 
         if (users.get(user.getId()) != null) {
             log.info(LogMessagesUsers.USER_ALREADY_EXISTS.getMessage() + user.toString());
@@ -47,25 +44,16 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public User update(@Valid @RequestBody User user) {
-        ValidatorUser.validator(user);
-
-        if (users.get(user.getId()) != null) {
-            users.put(user.getId(), user);
-            log.info(LogMessagesUsers.USER_DATA_UPDATED.getMessage() + user.toString());
-        } else {
-            ValidatorUser.validationFailed(user);
-        }
+    public User update(User user) {
+        users.put(user.getId(), user);
+        log.info(LogMessagesUsers.USER_DATA_UPDATED.getMessage() + user.toString());
         return user;
     }
 
     public boolean delete(int id) {
-        if (users.isEmpty() || !users.containsKey(id)) {
-            return false;
-        } else {
-            users.remove(id);
-            return true;
-        }
+        log.info(LogMessagesUsers.DELETE_USER.getMessage());
+        users.remove(id);
+        return true;
     }
 
 }

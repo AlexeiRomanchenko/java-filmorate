@@ -2,15 +2,11 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.exception.FilmAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -31,8 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(films.values());
     }
 
-    public Film create(@Valid @RequestBody Film film) {
-        ValidatorFilm.validator(film);
+    public Film create(Film film) {
 
         if (films.get(film.getId()) != null) {
             log.info(LogMessagesFilms.FILM_ALREADY_EXISTS.getMessage() + film.toString());
@@ -47,26 +42,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public Film update(@Valid @RequestBody Film film) {
-        ValidatorFilm.validator(film);
-
-        if (films.get(film.getId()) != null) {
-            films.put(film.getId(), film);
-            log.info(LogMessagesFilms.FILM_DATA_UPDATED.getMessage() + film.toString());
-        } else {
-            ValidatorFilm.validationFailed(film);
-        }
-
+    public Film update(Film film) {
+        films.put(film.getId(), film);
+        log.info(LogMessagesFilms.FILM_DATA_UPDATED.getMessage() + film.toString());
         return film;
     }
 
     public boolean delete(int id) {
-        if (films.isEmpty() || !films.containsKey(id)) {
-            return false;
-        } else {
-            films.remove(id);
-            return true;
-        }
+        log.info(LogMessagesFilms.DELETE_FILM.getMessage());
+        films.remove(id);
+        return true;
     }
 
 }

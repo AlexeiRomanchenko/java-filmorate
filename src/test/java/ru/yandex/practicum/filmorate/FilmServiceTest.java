@@ -55,18 +55,17 @@ public class FilmServiceTest {
 
     InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
     FilmService filmService = new FilmService(inMemoryFilmStorage);
-    FilmController filmController = new FilmController(filmService, inMemoryFilmStorage);
+    FilmController filmController = new FilmController(filmService);
 
     InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
     UserService userService = new UserService(inMemoryUserStorage);
-    UserController userController = new UserController(userService, inMemoryUserStorage);
+    UserController userController = new UserController(userService);
 
 
     @Test
     public void getPopularFilms() throws ValidationException {
         filmController.create(film);
         filmController.create(film1);
-        filmController.create(film2);
 
         userController.create(user);
         userController.create(user1);
@@ -75,7 +74,7 @@ public class FilmServiceTest {
         filmController.setLike(film1.getId(), user.getId());
         filmController.setLike(film1.getId(), user1.getId());
 
-        assertEquals(3, filmController.getPopularFilms("10").size());
+        assertEquals(2, filmController.getPopularFilms(10).size());
 
     }
 
@@ -83,7 +82,6 @@ public class FilmServiceTest {
     public void getMostPopularFilms() throws ValidationException {
         filmController.create(film);
         filmController.create(film1);
-        filmController.create(film2);
 
         userController.create(user);
         userController.create(user1);
@@ -92,7 +90,7 @@ public class FilmServiceTest {
         filmController.setLike(film1.getId(), user.getId());
         filmController.setLike(film1.getId(), user1.getId());
 
-        assertEquals(1, filmController.getPopularFilms("1").size());
+        assertEquals(1, filmController.getPopularFilms(1).size());
 
     }
 

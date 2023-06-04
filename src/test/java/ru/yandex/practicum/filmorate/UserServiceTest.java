@@ -41,7 +41,7 @@ public class UserServiceTest {
     InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
     UserService userService = new UserService(inMemoryUserStorage);
 
-    UserController userController = new UserController(userService, inMemoryUserStorage);
+    UserController userController = new UserController(userService);
 
     @Test
     public void finUserTest() throws ValidationException {

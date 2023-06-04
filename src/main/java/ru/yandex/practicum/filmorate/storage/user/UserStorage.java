@@ -17,5 +17,4 @@ public interface UserStorage {
 
     boolean delete(int id);
 
-
 }
