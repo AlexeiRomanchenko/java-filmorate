@@ -16,11 +16,9 @@ import java.util.List;
 public class FilmController {
     private final FilmService filmService;
 
-
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
-
     }
 
     @GetMapping
@@ -54,8 +52,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10")
-                                      int count) {
+    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") int count) {
         return filmService.getPopularFilms(count);
     }
 

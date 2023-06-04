@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public Collection<User> getUsers() {
-        return userStorage.getUsers();
+        return userStorage.getUsers().values();
     }
 
     public User create(User user) {
@@ -33,7 +33,12 @@ public class UserService {
 
     public User update(User user) {
         ValidatorUser.validator(user);
-        userStorage.update(user);
+
+        if (userStorage.getUsers().get(user.getId()) != null) {
+            userStorage.update(user);
+        } else
+            ValidatorUser.validationFailed(user);
+
         return user;
     }
 
@@ -45,7 +50,7 @@ public class UserService {
         return userStorage.getById(id);
     }
 
-    public void addToFriendList(int id, int friendId) { //добавление в друзья
+    public void addToFriendList(int id, int friendId) {
         if (findUser(id).getFriends() != null && findUser(id).getFriends().contains((long) friendId)) {
             throw new ActionHasAlreadyDoneException(LogMessagesUsers.FRIEND_ALREDY_ADD.getMessage());
         }

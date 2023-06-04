@@ -29,12 +29,17 @@ public class FilmService {
 
     public Film update(Film film) {
         ValidatorFilm.validator(film);
-        filmStorage.update(film);
+
+        if (filmStorage.getFilms().get(film.getId()) != null) {
+            filmStorage.update(film);
+        } else
+            ValidatorFilm.validationFailed(film);
+
         return film;
     }
 
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+        return filmStorage.getFilms().values();
     }
 
     public Film findFilm(int id) {
@@ -64,8 +69,9 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getFilms().stream()
-                .sorted(Comparator.comparingLong(film -> film.getLikes().size()))
+        return getFilms()
+                .stream()
+                .sorted(Comparator.comparingLong(film -> -film.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }

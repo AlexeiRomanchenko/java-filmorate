@@ -22,9 +22,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(films.keySet());
     }
 
-    public Collection<Film> getFilms() {
+    public HashMap<Integer, Film> getFilms() {
         log.info(LogMessagesFilms.GET_ALL_FILMS_REQUEST.getMessage());
-        return new ArrayList<>(films.values());
+        return films;
     }
 
     public Film create(Film film) {

@@ -120,4 +120,5 @@ public class FilmsTest {
                         " Film(id=2, likes=[], name=Аватар, description=Фантастика, releaseDate=2001-01-02, duration=7559)]",
                 String.valueOf(filmController.getFilms()));
     }
+
 }

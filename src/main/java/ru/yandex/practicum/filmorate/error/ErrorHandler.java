@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.description.LogError;
 import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 @RestControllerAdvice
@@ -23,9 +24,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleSearchObjectNotFoundException(final ActionHasAlreadyDoneException e) {
         log.info(LogError.OBJECT_NOT_FOUND.getMessage());
-        return new ErrorResponse(
-                e.getMessage()
-        );
+        return new ErrorResponse(e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSearchObjectNotFoundException(final ObjectNotFoundException e) {
+        log.info(LogError.OBJECT_NOT_FOUND.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

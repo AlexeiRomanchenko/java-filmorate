@@ -33,4 +33,5 @@ public class ValidatorUser {
         log.error(LogMessagesUsers.VALIDATION_FAILED.getMessage() + user.toString());
         throw new UserAlreadyExistException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
     }
+
 }

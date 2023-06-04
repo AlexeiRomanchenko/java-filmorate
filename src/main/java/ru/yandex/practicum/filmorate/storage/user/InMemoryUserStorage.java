@@ -24,9 +24,9 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(users.keySet());
     }
 
-    public Collection<User> getUsers() {
+    public HashMap<Integer, User> getUsers() {
         log.info(LogMessagesUsers.GET_ALL_USERS_REQUEST.getMessage());
-        return new ArrayList<>(users.values());
+        return users;
     }
 
     public User create(User user) {
