@@ -1,9 +1,16 @@
 package ru.yandex.practicum.filmorate.description;
 
 public enum LogMessagesFilms {
-    USER_ALREDY_ADD_LIKE("Этот пользователь уже ставил лайк к этому фильму."),
+    USER_ALREADY_ADD_LIKE("Этот пользователь уже ставил лайк к этому фильму."),
     GET_ALL_FILMS_REQUEST("Получен запрос на получение всех фильмов."),
-    VALIDATION_FAILED("Ошибка валидации"),
+    GET_LIST_POPULAR_FILMS_REQUEST("Получен запрос на получение списка популярных фильмов по количеству лайков."),
+    USER_SET_LIKE_FILM_REQUEST("Получен запрос на установку лайка."),
+    USER_DELETE_LIKE_FILM_REQUEST("Получен запрос на удаление лайка."),
+    FILMS_ID(" FilmID = "),
+    GET_FILM_BY_ID_REQUEST("Получен запрос на получение фильма с ID = "),
+    CREATE_FILM_REQUEST("Получен запрос на создание фильма."),
+    UPDATE_FILM_REQUEST("Получен запрос на обновление данных фильма."),
+    VALIDATION_FAILED("Ошибка валидации."),
     FILM_ADD("Добавлен фильм: "),
     DELETE_FILM("Фильм удален из базы."),
     FILM_NOT_VALIDATED_DATE("Данный фильм не прошел валидацию по дате: "),

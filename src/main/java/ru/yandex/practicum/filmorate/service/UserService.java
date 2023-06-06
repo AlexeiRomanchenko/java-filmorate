@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public Collection<User> getUsers() {
-        return userStorage.getUsers().values();
+        return userStorage.getUsers();
     }
 
     public User create(User user) {
@@ -34,7 +34,7 @@ public class UserService {
     public User update(User user) {
         ValidatorUser.validator(user);
 
-        if (userStorage.getUsers().get(user.getId()) != null) {
+        if (checkUserIdByList(user)) {
             userStorage.update(user);
         } else
             ValidatorUser.validationFailed(user);
@@ -42,8 +42,14 @@ public class UserService {
         return user;
     }
 
+    public boolean checkUserIdByList(User user) {
+        return userStorage.getUsers()
+                .stream()
+                .anyMatch(userTemp -> userTemp.getId().equals(user.getId()));
+    }
+
     public User findUser(int id) {
-        if (!userStorage.getIdsAllUsers().contains(id)) {
+        if (userStorage.getById(id) == null) {
             throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
         }
 
@@ -51,8 +57,8 @@ public class UserService {
     }
 
     public void addToFriendList(int id, int friendId) {
-        if (findUser(id).getFriends() != null && findUser(id).getFriends().contains((long) friendId)) {
-            throw new ActionHasAlreadyDoneException(LogMessagesUsers.FRIEND_ALREDY_ADD.getMessage());
+        if (findUser(id).getFriends().contains((long) friendId)) {
+            throw new ActionHasAlreadyDoneException(LogMessagesUsers.FRIEND_ALREADY_ADD.getMessage());
         }
 
         if (friendId <= 0) {

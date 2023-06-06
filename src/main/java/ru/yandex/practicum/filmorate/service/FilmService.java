@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private static final Comparator<Film> POPULARITY_COMPARATOR =
+            Comparator.comparingLong(film -> -film.getLikes().size());
 
     @Autowired
     public FilmService(FilmStorage filmStorage) {
@@ -30,7 +32,7 @@ public class FilmService {
     public Film update(Film film) {
         ValidatorFilm.validator(film);
 
-        if (filmStorage.getFilms().get(film.getId()) != null) {
+        if (checkFilmIdByList(film)) {
             filmStorage.update(film);
         } else
             ValidatorFilm.validationFailed(film);
@@ -38,12 +40,18 @@ public class FilmService {
         return film;
     }
 
+    public boolean checkFilmIdByList(Film film) {
+        return filmStorage.getFilms()
+                .stream()
+                .anyMatch(filmTemp -> filmTemp.getId().equals(film.getId()));
+    }
+
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms().values();
+        return filmStorage.getFilms();
     }
 
     public Film findFilm(int id) {
-        if (!filmStorage.getIdsAllFilms().contains(id)) {
+        if (filmStorage.getById(id) == null) {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
         }
         return filmStorage.getById(id);
@@ -51,8 +59,8 @@ public class FilmService {
 
     public void addLike(int id, int userId) {
 
-        if (findFilm(id).getLikes() != null && findFilm(id).getLikes().contains((long) userId)) {
-            throw new ActionHasAlreadyDoneException(LogMessagesFilms.USER_ALREDY_ADD_LIKE.getMessage());
+        if (findFilm(id).getLikes().contains((long) userId)) {
+            throw new ActionHasAlreadyDoneException(LogMessagesFilms.USER_ALREADY_ADD_LIKE.getMessage());
         } else {
             findFilm(id).setLikes(userId);
         }
@@ -71,7 +79,7 @@ public class FilmService {
     public List<Film> getPopularFilms(int count) {
         return getFilms()
                 .stream()
-                .sorted(Comparator.comparingLong(film -> -film.getLikes().size()))
+                .sorted(POPULARITY_COMPARATOR)
                 .limit(count)
                 .collect(Collectors.toList());
     }

@@ -18,13 +18,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    public Collection<Integer> getIdsAllFilms() {
-        return new ArrayList<>(films.keySet());
-    }
-
-    public HashMap<Integer, Film> getFilms() {
+    public Collection<Film> getFilms() {
         log.info(LogMessagesFilms.GET_ALL_FILMS_REQUEST.getMessage());
-        return films;
+        return new ArrayList<>(films.values());
     }
 
     public Film create(Film film) {
