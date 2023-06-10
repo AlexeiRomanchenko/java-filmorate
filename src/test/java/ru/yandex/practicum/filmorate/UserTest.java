@@ -5,6 +5,8 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -12,7 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserTest {
-    UserController userController = new UserController();
+    InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(inMemoryUserStorage);
+    UserController userController = new UserController(userService);
 
     @Test
     void shouldCreateNewUser() {
@@ -24,7 +28,7 @@ public class UserTest {
                 .birthday(LocalDate.of(1955, 6, 19))
                 .build();
         userController.create(user);
-        assertEquals("[User(id=1, email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19)]",
+        assertEquals("[User(id=1, friends=[], email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19)]",
                 String.valueOf(userController.getUsers()));
     }
 
@@ -65,7 +69,7 @@ public class UserTest {
                 .build();
         userController.create(user);
 
-        assertEquals("[User(id=1, email=privet@ya.ru, login=Andry, name=Andry, birthday=1958-12-30)]",
+        assertEquals("[User(id=1, friends=[], email=privet@ya.ru, login=Andry, name=Andry, birthday=1958-12-30)]",
                 String.valueOf(userController.getUsers()));
     }
 
@@ -80,7 +84,7 @@ public class UserTest {
                 .build();
         userController.create(user);
 
-        assertEquals("[User(id=1, email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19)]",
+        assertEquals("[User(id=1, friends=[], email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19)]",
                 String.valueOf(userController.getUsers()));
 
         user.setName("Николай");
@@ -88,7 +92,7 @@ public class UserTest {
         user.setEmail("kolya@rjd.ru");
 
         userController.update(user);
-        assertEquals("[User(id=1, email=kolya@rjd.ru, login=Kolya, name=Николай, birthday=1955-06-19)]",
+        assertEquals("[User(id=1, friends=[], email=kolya@rjd.ru, login=Kolya, name=Николай, birthday=1955-06-19)]",
                 String.valueOf(userController.getUsers()));
     }
 
@@ -112,8 +116,8 @@ public class UserTest {
                 .build();
         userController.create(user1);
 
-        assertEquals("[User(id=1, email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19), " +
-                        "User(id=2, email=sasha@rjd.ru, login=Sanya, name=Саша, birthday=1965-06-21)]",
+        assertEquals("[User(id=1, friends=[], email=ivan@rjd.ru, login=Vanya, name=Иван, birthday=1955-06-19), " +
+                        "User(id=2, friends=[], email=sasha@rjd.ru, login=Sanya, name=Саша, birthday=1965-06-21)]",
                 String.valueOf(userController.getUsers()));
 
     }
