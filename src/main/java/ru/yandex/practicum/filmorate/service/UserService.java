@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,7 @@ public class UserService {
     public User update(User user) {
         ValidatorUser.validator(user);
 
-        if (checkUserIdByList(user)) {
+        if (userStorage.getById(user.getId()) != null) {
             userStorage.update(user);
         } else
             ValidatorUser.validationFailed(user);
@@ -42,18 +43,13 @@ public class UserService {
         return user;
     }
 
-    public boolean checkUserIdByList(User user) {
-        return userStorage.getUsers()
-                .stream()
-                .anyMatch(userTemp -> userTemp.getId().equals(user.getId()));
-    }
-
     public User findUser(int id) {
-        if (userStorage.getById(id) == null) {
+        User user = userStorage.getById(id);
+        if (user == null) {
             throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
         }
 
-        return userStorage.getById(id);
+        return user;
     }
 
     public void addToFriendList(int id, int friendId) {
@@ -75,11 +71,14 @@ public class UserService {
     }
 
     public List<User> getListFriendsUserById(int id) {
-        return findUser(id)
-                .getFriends()
-                .stream()
+        User user = findUser(id);
+        Set<Long> friendIds = user.getFriends();
+
+        List<User> userFriends = friendIds.stream()
                 .map(userId -> userStorage.getById(Math.toIntExact(userId)))
                 .collect(Collectors.toList());
+
+        return userFriends;
     }
 
     public List<User> getCommonFriends(int id, int otherId) {

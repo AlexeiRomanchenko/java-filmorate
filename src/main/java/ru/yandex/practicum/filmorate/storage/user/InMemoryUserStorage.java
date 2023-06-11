@@ -46,10 +46,9 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public boolean delete(int id) {
+    public void delete(int id) {
         log.info(LogMessagesUsers.DELETE_USER.getMessage());
         users.remove(id);
-        return true;
     }
 
 }

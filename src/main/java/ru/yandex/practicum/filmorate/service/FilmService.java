@@ -32,7 +32,7 @@ public class FilmService {
     public Film update(Film film) {
         ValidatorFilm.validator(film);
 
-        if (checkFilmIdByList(film)) {
+        if (filmStorage.getById(film.getId()) != null) {
             filmStorage.update(film);
         } else
             ValidatorFilm.validationFailed(film);
@@ -40,21 +40,17 @@ public class FilmService {
         return film;
     }
 
-    public boolean checkFilmIdByList(Film film) {
-        return filmStorage.getFilms()
-                .stream()
-                .anyMatch(filmTemp -> filmTemp.getId().equals(film.getId()));
-    }
-
     public Collection<Film> getFilms() {
         return filmStorage.getFilms();
     }
 
     public Film findFilm(int id) {
-        if (filmStorage.getById(id) == null) {
+        Film film = filmStorage.getById(id);
+
+        if (film == null) {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
         }
-        return filmStorage.getById(id);
+        return film;
     }
 
     public void addLike(int id, int userId) {

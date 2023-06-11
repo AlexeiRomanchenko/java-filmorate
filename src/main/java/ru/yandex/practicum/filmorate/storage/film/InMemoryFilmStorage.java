@@ -44,10 +44,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public boolean delete(int id) {
+    public void delete(int id) {
         log.info(LogMessagesFilms.DELETE_FILM.getMessage());
         films.remove(id);
-        return true;
     }
 
 }
