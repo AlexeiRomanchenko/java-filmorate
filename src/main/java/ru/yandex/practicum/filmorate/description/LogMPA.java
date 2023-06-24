@@ -6,6 +6,7 @@ public enum LogMPA {
     NO_FOUND_MPA("Рейтинг не найден");
 
     private final String message;
+
     LogMPA (String message) {
         this.message = message;
     }
