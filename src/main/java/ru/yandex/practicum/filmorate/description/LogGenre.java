@@ -6,7 +6,7 @@ public enum LogGenre {
 
     private final String message;
 
-    LogGenre (String message) {
+    LogGenre(String message) {
         this.message = message;
     }
 
