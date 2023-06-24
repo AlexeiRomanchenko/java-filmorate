@@ -68,7 +68,7 @@ class FilmorateApplicationTests {
     void shouldCreateNewFilm() {
 
         Film film = Film.builder()
-                .id(3)
+                .id(2)
                 .name("Агент007")
                 .description("Джеймс Бонд")
                 .duration(9879)
@@ -78,7 +78,7 @@ class FilmorateApplicationTests {
 
         Film createFilm = filmStorage.create(film);
 
-        assertEquals(3, createFilm.getId());
+        assertEquals(2, createFilm.getId());
         assertEquals("Агент007", createFilm.getName());
         assertEquals("Джеймс Бонд", createFilm.getDescription());
         assertEquals(9879, createFilm.getDuration());
@@ -90,7 +90,7 @@ class FilmorateApplicationTests {
     @Test
     void shouldGetFilms() {
         Film film = Film.builder()
-                .id(1)
+                .id(4)
                 .name("Агент007")
                 .description("Джеймс Бонд")
                 .duration(9879)
@@ -102,7 +102,7 @@ class FilmorateApplicationTests {
 
         Collection<Film> films = filmStorage.getFilms();
 
-        assertEquals("[Film(id=1, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
+        assertEquals("[Film(id=4, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
                 " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
 
     }
@@ -128,7 +128,7 @@ class FilmorateApplicationTests {
         assertEquals("Агент009", tempFilm.getName());
         assertEquals("Бонд", tempFilm.getDescription());
 
-        assertEquals("[Film(id=2, likes=[], name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
+        assertEquals("[Film(id=1, likes=[], name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
                         "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 filmStorage.getFilms().toString());
     }
@@ -152,7 +152,7 @@ class FilmorateApplicationTests {
     @Test
     void shouldCreateFilmAfterRelease() {
         Film film = Film.builder()
-                .id(4)
+                .id(3)
                 .name("Агент007")
                 .description("Джеймс Бонд")
                 .duration(9879)
@@ -160,7 +160,7 @@ class FilmorateApplicationTests {
                 .mpa(mpaController.getRatingMpaById(5))
                 .build();
         filmController.create(film);
-        assertEquals("[Film(id=4, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
+        assertEquals("[Film(id=3, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
                         "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 String.valueOf(filmController.getFilms()));
     }
