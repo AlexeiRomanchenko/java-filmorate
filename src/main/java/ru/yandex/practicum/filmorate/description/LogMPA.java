@@ -7,7 +7,7 @@ public enum LogMPA {
 
     private final String message;
 
-    LogMPA (String message) {
+    LogMPA(String message) {
         this.message = message;
     }
 
