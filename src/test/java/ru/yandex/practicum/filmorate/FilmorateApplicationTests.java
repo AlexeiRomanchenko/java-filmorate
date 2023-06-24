@@ -88,7 +88,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void _shouldGetFilms() {
+    void shouldGetFilms() {
         Film film = Film.builder()
                 .id(1)
                 .name("Агент007")
