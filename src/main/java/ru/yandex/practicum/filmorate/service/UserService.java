@@ -6,11 +6,10 @@ import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +42,12 @@ public class UserService {
         return user;
     }
 
+    public boolean checkUserIdByList(User user) {
+        return userStorage.getUsers()
+                .stream()
+                .anyMatch(userTemp -> userTemp.getId().equals(user.getId()));
+    }
+
     public User findUser(int id) {
         User user = userStorage.getById(id);
         if (user == null) {
@@ -61,23 +66,17 @@ public class UserService {
             throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
         }
 
-        findUser(id).addFriendById(friendId);
-        findUser(friendId).addFriendById(id);
+        checkUser(id, friendId);
+        userStorage.addFriend(id, friendId);
     }
 
     public void removeFromListFriend(int id, int friendId) {
-        findUser(id).deleteFriendById(friendId);
-        findUser(friendId).deleteFriendById(id);
+        checkUser(id, friendId);
+        userStorage.removeFriend(id, friendId);
     }
 
     public List<User> getListFriendsUserById(int id) {
-        User user = findUser(id);
-        Set<Long> friendIds = user.getFriends();
-
-        List<User> userFriends = friendIds.stream()
-                .map(userId -> userStorage.getById(Math.toIntExact(userId)))
-                .collect(Collectors.toList());
-
+        List<User> userFriends = userStorage.getFriends(id);
         return userFriends;
     }
 
@@ -86,6 +85,11 @@ public class UserService {
                 .stream()
                 .filter(getListFriendsUserById(otherId)::contains)
                 .collect(Collectors.toList());
+    }
+
+    private void checkUser(Integer userId, Integer friendId) {
+        userStorage.getById(userId);
+        userStorage.getById(friendId);
     }
 
 }

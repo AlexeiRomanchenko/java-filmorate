@@ -11,7 +11,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class Film {
     @Positive
     private Integer id;
@@ -22,6 +22,20 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
+    private Set<Genre> genres;
+    private RatingMpa mpa;
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
+
+    public void deleteAllGenres() {
+        genres.clear();
+    }
+
+    public void deleteGenre(Genre genre) {
+        genres.remove(genre);
+    }
 
     public void setLikes(long id) {
         checkOnNullLikes();

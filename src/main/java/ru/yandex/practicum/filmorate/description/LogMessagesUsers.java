@@ -10,8 +10,8 @@ public enum LogMessagesUsers {
     USER_DELETE_FRIEND_REQUEST("Получен запрос на удаление друга из списка друзей."),
     GET_LIST_FRIENDS_USER_REQUEST("Получен запрос на получение списка друзей пользователя."),
     GET_LIST_COMMON_FRIENDS_REQUEST("Получен запрос на получение списка общих друзей пользователей."),
-    USER_ID(" UserID = "),
-    FRIEND_ID(" FrendID = "),
+    USER_ID(" User ID = "),
+    FRIEND_ID(" Frend ID = "),
     UPDATE_USER_REQUEST("Получен запрос на обновление данных пользователя."),
     GET_USER_BY_ID_REQUEST("Получен запрос на получение пользователя с ID = "),
     USER_ADD("Добавлен пользователь: "),
@@ -30,4 +30,5 @@ public enum LogMessagesUsers {
     public String getMessage() {
         return message;
     }
+
 }
