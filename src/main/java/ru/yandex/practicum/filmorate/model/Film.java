@@ -15,7 +15,6 @@ import javax.validation.constraints.Size;
 public class Film {
     @Positive
     private Integer id;
-    private Set<Long> likes;
     private String name;
     @Size(max = 200)
     private String description;
@@ -37,7 +36,7 @@ public class Film {
         genres.remove(genre);
     }
 
-    public void setLikes(long id) {
+/*    public void setLikes(long id) {
         checkOnNullLikes();
         likes.add(id);
     }
@@ -45,8 +44,8 @@ public class Film {
     public Set<Long> getLikes() {
         checkOnNullLikes();
         return likes;
-    }
-
+    }*/
+/*
     public void deleteLike(long id) {
         likes.remove(id);
     }
@@ -55,6 +54,6 @@ public class Film {
         if (likes == null) {
             likes = new HashSet<>();
         }
-    }
+    }*/
 
 }

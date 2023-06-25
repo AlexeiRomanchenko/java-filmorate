@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
-@Service
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,10 +12,10 @@ import javax.validation.constraints.Positive;
 public class RatingMpa {
 
     @Positive
-    protected int id;
+    private int id;
 
     @NotBlank
-    protected String name;
+    private String name;
 
     @Override
     public String toString() {

@@ -15,8 +15,6 @@ import java.util.*;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private static final Comparator<Film> POPULARITY_COMPARATOR =
-            Comparator.comparingLong(film -> -film.getLikes().size());
 
     @Autowired
     public FilmService(UserStorage userStorage, FilmStorage filmStorage) {

@@ -42,12 +42,6 @@ public class UserService {
         return user;
     }
 
-    public boolean checkUserIdByList(User user) {
-        return userStorage.getUsers()
-                .stream()
-                .anyMatch(userTemp -> userTemp.getId().equals(user.getId()));
-    }
-
     public User findUser(int id) {
         User user = userStorage.getById(id);
         if (user == null) {
@@ -81,10 +75,8 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        return getListFriendsUserById(id)
-                .stream()
-                .filter(getListFriendsUserById(otherId)::contains)
-                .collect(Collectors.toList());
+        List<User> commonFriends = userStorage.getCommonFriends(id, otherId);
+        return commonFriends;
     }
 
     private void checkUser(Integer userId, Integer friendId) {

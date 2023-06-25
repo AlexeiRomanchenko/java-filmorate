@@ -132,13 +132,14 @@ public class UserDbStorage implements UserStorage {
         String email = srs.getString("email");
         LocalDate birthday = Objects.requireNonNull(srs.getTimestamp("birthday"))
                 .toLocalDateTime().toLocalDate();
-        return User.builder()
+        User user = User.builder()
                 .id(id)
                 .name(name)
                 .login(login)
                 .email(email)
                 .birthday(birthday)
                 .build();
+        return user;
     }
 
     public void clearDbUsers() {

@@ -102,7 +102,7 @@ class FilmorateApplicationTests {
 
         Collection<Film> films = filmStorage.getFilms();
 
-        assertEquals("[Film(id=4, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
+        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
                 " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
 
     }
@@ -128,7 +128,7 @@ class FilmorateApplicationTests {
         assertEquals("Агент009", tempFilm.getName());
         assertEquals("Бонд", tempFilm.getDescription());
 
-        assertEquals("[Film(id=1, likes=[], name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
+        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
                         "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 filmStorage.getFilms().toString());
     }
@@ -160,7 +160,7 @@ class FilmorateApplicationTests {
                 .mpa(mpaController.getRatingMpaById(5))
                 .build();
         filmController.create(film);
-        assertEquals("[Film(id=3, likes=[], name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
+        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
                         "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 String.valueOf(filmController.getFilms()));
     }
