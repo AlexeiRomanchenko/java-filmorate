@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Builder;
@@ -35,25 +34,5 @@ public class Film {
     public void deleteGenre(Genre genre) {
         genres.remove(genre);
     }
-
-/*    public void setLikes(long id) {
-        checkOnNullLikes();
-        likes.add(id);
-    }
-
-    public Set<Long> getLikes() {
-        checkOnNullLikes();
-        return likes;
-    }*/
-/*
-    public void deleteLike(long id) {
-        likes.remove(id);
-    }
-
-    private void checkOnNullLikes() {
-        if (likes == null) {
-            likes = new HashSet<>();
-        }
-    }*/
 
 }
