@@ -4,22 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
-import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
+    private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private static final Comparator<Film> POPULARITY_COMPARATOR =
-            Comparator.comparingLong(film -> -film.getLikes().size());
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+        this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
 
@@ -32,7 +31,7 @@ public class FilmService {
     public Film update(Film film) {
         ValidatorFilm.validator(film);
 
-        if (checkFilmIdByList(film)) {
+        if (filmStorage.getById(film.getId()) != null) {
             filmStorage.update(film);
         } else
             ValidatorFilm.validationFailed(film);
@@ -40,48 +39,45 @@ public class FilmService {
         return film;
     }
 
-    public boolean checkFilmIdByList(Film film) {
-        return filmStorage.getFilms()
-                .stream()
-                .anyMatch(filmTemp -> filmTemp.getId().equals(film.getId()));
-    }
-
     public Collection<Film> getFilms() {
         return filmStorage.getFilms();
     }
 
     public Film findFilm(int id) {
-        if (filmStorage.getById(id) == null) {
+        Film film = filmStorage.getById(id);
+
+        if (film == null) {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
         }
-        return filmStorage.getById(id);
+        return film;
     }
 
-    public void addLike(int id, int userId) {
-
-        if (findFilm(id).getLikes().contains((long) userId)) {
-            throw new ActionHasAlreadyDoneException(LogMessagesFilms.USER_ALREADY_ADD_LIKE.getMessage());
+    public void addLike(int filmId, int userId) {
+        Film film = filmStorage.getById(filmId);
+        if (film != null) {
+            if (userStorage.getById(userId) != null) {
+                filmStorage.addLike(filmId, userId);
+            } else {
+                throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + userId);
+            }
         } else {
-            findFilm(id).setLikes(userId);
+            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
         }
     }
 
-    public void deleteLike(int id, int userId) {
+    public void deleteLike(int filmId, int userId) {
 
         if (userId < 0) {
             throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
         }
 
-        findFilm(id).deleteLike(userId);
+        filmStorage.removeLike(filmId, userId);
 
     }
 
-    public List<Film> getPopularFilms(int count) {
-        return getFilms()
-                .stream()
-                .sorted(POPULARITY_COMPARATOR)
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getPopularFilms(int count) {
+        List<Film> result = new ArrayList<>(filmStorage.getPopular(count));
+        return result;
     }
 
 }

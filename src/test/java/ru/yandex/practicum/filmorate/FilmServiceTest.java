@@ -1,43 +1,34 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.controller.MPAController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FilmServiceTest {
-    Film film = Film.builder()
-            .id(1)
-            .name("Film")
-            .description("Film")
-            .releaseDate(LocalDate.of(2010, 10, 11))
-            .duration(60)
-            .build();
 
-    Film film1 = Film.builder()
-            .id(2)
-            .name("Film1")
-            .description("Film1")
-            .releaseDate(LocalDate.of(2012, 9, 2))
-            .duration(90)
-            .build();
-    Film film2 = Film.builder()
-            .id(3)
-            .name("Film2")
-            .description("Film2")
-            .releaseDate(LocalDate.of(2018, 6, 2))
-            .duration(160)
-            .build();
+    private final MPAController mpaController;
+    private final FilmStorage filmStorage;
+    private final UserController userController;
+    private final FilmController filmController;
 
     User user = User.builder()
             .id(1)
@@ -54,33 +45,66 @@ public class FilmServiceTest {
             .birthday(LocalDate.of(1995, 4, 14))
             .build();
 
-    InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-    FilmService filmService = new FilmService(inMemoryFilmStorage);
-    FilmController filmController = new FilmController(filmService);
-
-    InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-    UserService userService = new UserService(inMemoryUserStorage);
-    UserController userController = new UserController(userService);
-
-
     @Test
-    public void getPopularFilms() throws ValidationException {
-        filmController.create(film);
-        filmController.create(film1);
+    public void should_getPopularFilms() throws ValidationException {
+        Film film = Film.builder()
+                .id(0)
+                .name("Film")
+                .description("Film")
+                .releaseDate(LocalDate.of(2010, 10, 11))
+                .releaseDate(LocalDate.of(1895, 12, 29))
+                .duration(60)
+                .mpa(mpaController.getRatingMpaById(5))
+                .build();
+
+        Film film1 = Film.builder()
+                .id(1)
+                .name("Film1")
+                .description("Film1")
+                .releaseDate(LocalDate.of(2012, 9, 2))
+                .duration(90)
+                .releaseDate(LocalDate.of(1895, 12, 29))
+                .mpa(mpaController.getRatingMpaById(5))
+                .build();
 
         userController.create(user);
         userController.create(user1);
 
+        filmController.create(film);
+        filmController.create(film1);
+
         filmController.setLike(film.getId(), user.getId());
         filmController.setLike(film1.getId(), user.getId());
-        filmController.setLike(film1.getId(), user1.getId());
 
-        assertEquals(2, filmController.getPopularFilms(10).size());
+        assertEquals(3, filmController.getPopularFilms(10).size());
 
     }
 
     @Test
-    public void getMostPopularFilms() throws ValidationException {
+    public void shouldGetMostPopularFilms() throws ValidationException {
+
+        Film film = Film.builder()
+                .id(1)
+                .name("Film")
+                .description("Film")
+                .releaseDate(LocalDate.of(2010, 10, 11))
+                .releaseDate(LocalDate.of(1895, 12, 29))
+                .duration(60)
+                .genres(new HashSet<>())
+                .mpa(mpaController.getRatingMpaById(5))
+                .build();
+
+        Film film1 = Film.builder()
+                .id(2)
+                .name("Film1")
+                .description("Film1")
+                .releaseDate(LocalDate.of(2012, 9, 2))
+                .duration(90)
+                .releaseDate(LocalDate.of(1895, 12, 29))
+                .genres(new HashSet<>())
+                .mpa(mpaController.getRatingMpaById(5))
+                .build();
+
         filmController.create(film);
         filmController.create(film1);
 
@@ -93,6 +117,38 @@ public class FilmServiceTest {
 
         assertEquals(1, filmController.getPopularFilms(1).size());
 
+    }
+
+    @Test
+    void createFilm_shouldConfirmThatFilmIdExists() {
+        Film film = Film.builder()
+                .id(1)
+                .name("Форсаж")
+                .description("Скорость")
+                .releaseDate(LocalDate.of(2030, 12, 29))
+                .duration(180)
+                .mpa(mpaController.getRatingMpaById(1))
+                .build();
+        filmStorage.create(film);
+        Film filmOptional = filmStorage.getById(1);
+
+        assertEquals(filmOptional.getId(), 1);
+    }
+
+    @Test
+    void getFilmById_shouldConfirmThatFilmIdExists() {
+        Film film = Film.builder()
+                .id(2)
+                .name("Форсаж")
+                .description("Скорость")
+                .releaseDate(LocalDate.of(2030, 12, 29))
+                .duration(180)
+                .mpa(mpaController.getRatingMpaById(1))
+                .build();
+
+        filmStorage.create(film);
+
+        assertEquals(filmStorage.getById(film.getId()).getId(), film.getId());
     }
 
 }

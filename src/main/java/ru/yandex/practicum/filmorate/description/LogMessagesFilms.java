@@ -27,4 +27,5 @@ public enum LogMessagesFilms {
     public String getMessage() {
         return message;
     }
+
 }
