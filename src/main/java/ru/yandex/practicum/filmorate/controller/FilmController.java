@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -66,6 +68,14 @@ public class FilmController {
     public Collection<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") int count) {
         log.info(LogMessagesFilms.GET_LIST_POPULAR_FILMS_REQUEST.getMessage());
         return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getDirectorsFilmsWithSorted(@PathVariable int directorId,
+                                              @RequestParam(defaultValue = "likes") String sortBy) {
+        log.info(LogDirector.GET_ALL_FILMS_BY_DIRECTOR_REQUEST.getMessage() + directorId
+                + LogDirector.SORTED_BY + sortBy);
+        return filmService.getDirectorsFilmsSorted(directorId,sortBy);
     }
 
 }
