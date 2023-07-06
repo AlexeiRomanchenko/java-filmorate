@@ -50,6 +50,7 @@ public class ReviewController {
         log.info(LogMessagesReviews.DELETE_REVIEW_REQUEST.getMessage());
         reviewService.delete(id);
     }
+
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info(LogMessagesReviews.UPDATE_LIKE_REQUEST.getMessage());
