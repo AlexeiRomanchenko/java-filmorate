@@ -60,18 +60,17 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review create(Review review) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("REVIEWS")
-                .usingGeneratedKeyColumns("REVIEW_ID");
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("IS_POSITIVE", review.getIsPositive());
-        values.put("CONTENT", review.getContent());
-        values.put("USER_ID", review.getUserId());
-        values.put("FILM_ID", review.getFilmId());
-
-        Integer id = simpleJdbcInsert.executeAndReturnKey(values).intValue();
-        review.setReviewId(id);
+        Map<String, Object> keys = new SimpleJdbcInsert(this.jdbcTemplate)
+                .withTableName("reviews")
+                .usingColumns("content", "is_positive", "user_id", "film_id")
+                .usingGeneratedKeyColumns("review_id")
+                .executeAndReturnKeyHolder(Map.of(
+                        "is_positive", review.getIsPositive(),
+                        "content", review.getContent(),
+                        "user_id", review.getUserId(),
+                        "film_id", review.getFilmId()))
+                .getKeys();
+        review.setReviewId((Integer) keys.get("review_id"));
         return review;
     }
 
