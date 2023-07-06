@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -49,7 +50,7 @@ public class ReviewService {
     public void validateId(Integer id) {
         if (id == null) {
             log.warn(LogMessagesReviews.MSG_ERR_ID.getMessage());
-            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_ID.getMessage());
+            throw new BadRequestException(LogMessagesReviews.MSG_ERR_ID.getMessage());
         }
         if (id < 0) {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
