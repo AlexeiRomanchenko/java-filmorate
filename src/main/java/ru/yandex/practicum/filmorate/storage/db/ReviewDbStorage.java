@@ -38,7 +38,7 @@ public class ReviewDbStorage implements ReviewStorage {
     private Review mapToReview(ResultSet resultSet, int rowNum) throws SQLException {
         Review review = new Review();
         Integer id = resultSet.getInt("REVIEW_ID");
-        review.setId(id);
+        review.setReviewId(id);
         review.setContent(resultSet.getString("CONTENT"));
         review.setIsPositive(resultSet.getBoolean("IS_POSITIVE"));
         review.setUserId(resultSet.getInt("USER_ID"));
@@ -71,7 +71,7 @@ public class ReviewDbStorage implements ReviewStorage {
         values.put("FILM_ID", review.getFilmId());
 
         Integer id = simpleJdbcInsert.executeAndReturnKey(values).intValue();
-        review.setId(id);
+        review.setReviewId(id);
         return review;
     }
 
@@ -80,7 +80,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? " +
                 "WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(),
-                review.getId());
+                review.getReviewId());
         return review;
     }
 
@@ -92,7 +92,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public void loadGrades(Review review) {
         String sql = "SELECT * FROM REVIEW_USEFUL WHERE  REVIEW_ID = ?";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, review.getId());
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, review.getReviewId());
         while (sqlRowSet.next()) {
             review.addGrade(sqlRowSet.getInt("USER_ID"), sqlRowSet.getBoolean("GRADE"));
         }
@@ -100,12 +100,12 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void saveGrades(Review review) {
-        jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", review.getId());
+        jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", review.getReviewId());
 
         String sql = "INSERT INTO REVIEW_USEFUL (REVIEW_ID, USER_ID, GRADE) VALUES(?, ?, ?)";
         Map<Integer, Boolean> grades = review.getGrades();
         for (var grade : grades.entrySet()) {
-            jdbcTemplate.update(sql, review.getId(), grade.getKey(), grade.getValue());
+            jdbcTemplate.update(sql, review.getReviewId(), grade.getKey(), grade.getValue());
         }
     }
 }

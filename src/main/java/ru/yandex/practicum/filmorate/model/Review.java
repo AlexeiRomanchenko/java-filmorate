@@ -15,7 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class Review {
     @Positive
-    private Integer id;
+    private Integer reviewId;
     private String content;
     private Boolean isPositive;
     private Integer userId;

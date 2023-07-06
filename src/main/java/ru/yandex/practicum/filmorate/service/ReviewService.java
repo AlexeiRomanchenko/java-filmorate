@@ -35,15 +35,15 @@ public class ReviewService {
         validationBeforeUpdate(review);
         Review newData = reviewStorage.update(review);
         if (newData == null) {
-            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getId());
-            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getId());
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
+            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
         }
 
         return newData;
     }
 
     public void validationBeforeUpdate(Review review) {
-        validateId(review.getId());
+        validateId(review.getReviewId());
     }
 
     public void validateId(Integer id) {
