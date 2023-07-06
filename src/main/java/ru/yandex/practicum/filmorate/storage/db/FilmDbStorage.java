@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
+import javax.validation.constraints.Size;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -230,4 +232,25 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sql);
     }
 
+    @Override
+    public List<Film> findRecommendations(Integer userId) {
+        jdbcTemplate.update("DROP TABLE IF EXISTS likes_rank;");
+        String createLikesRank = "CREATE TEMPORARY TABLE IF NOT EXISTS likes_rank AS " +
+                "SELECT similar.user_id, COUNT(*) rank " +
+                "FROM likes target " +
+                "JOIN likes similar ON target.film_id = similar.film_id AND target.user_id != similar.user_id " +
+                "WHERE target.user_id = ? " +
+                "GROUP BY similar.user_id;";
+        jdbcTemplate.update(createLikesRank, userId);
+        String sqlQuery = "SELECT f.*, mpa.rating_name " +
+                "FROM films f " +
+                "LEFT JOIN likes similar ON similar.film_id = f.film_id " +
+                "LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id " +
+                "JOIN likes_rank ON likes_rank.user_id = similar.user_id " +
+                "LEFT JOIN likes target ON target.user_id = ? AND target.film_id = similar.film_id " +
+                "WHERE target.film_id IS NULL " +
+                "GROUP BY similar.film_id " +
+                "ORDER BY SUM(likes_rank.rank) DESC;";
+        return addGenreForList(jdbcTemplate.query(sqlQuery, this::makeFilm, userId));
+    }
 }

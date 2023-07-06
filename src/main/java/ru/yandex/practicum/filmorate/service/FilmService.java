@@ -80,4 +80,7 @@ public class FilmService {
         return result;
     }
 
+    public Collection<Film> getRecommendations(int id) {
+        return filmStorage.findRecommendations(id);
+    }
 }
