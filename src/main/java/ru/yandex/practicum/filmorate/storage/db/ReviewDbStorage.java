@@ -84,6 +84,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void delete(Integer id) {
+        jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", id);
         jdbcTemplate.update("DELETE FROM REVIEWS WHERE REVIEW_ID = ?", id);
     }
 
