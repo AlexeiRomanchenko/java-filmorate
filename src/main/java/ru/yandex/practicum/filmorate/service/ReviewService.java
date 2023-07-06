@@ -20,6 +20,7 @@ public class ReviewService {
     private final static String MSG_ERR_NOT_FOUND = "Не найдено по id ";
     private final ReviewStorage reviewStorage;
     private final UserService userService;
+
     @Autowired
     public ReviewService(ReviewStorage reviewStorage, UserService userService) {
         this.reviewStorage = reviewStorage;
