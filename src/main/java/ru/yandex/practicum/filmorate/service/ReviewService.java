@@ -77,7 +77,9 @@ public class ReviewService {
 
     public Review findById(Integer id) {
         Review review = reviewStorage.findById(id);
-        reviewStorage.loadGrades(review);
+        if (review != null) {
+            reviewStorage.loadGrades(review);
+        }
         return review;
     }
 
