@@ -24,6 +24,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     @Override
     public Review findById(Integer id) {
         String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
@@ -77,7 +78,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review update(Review review) {
         String sql = "UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? " +
-                     "WHERE REVIEW_ID = ?";
+                "WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(),
                 review.getId());
         return review;
@@ -102,7 +103,7 @@ public class ReviewDbStorage implements ReviewStorage {
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", review.getId());
 
         String sql = "INSERT INTO REVIEW_USEFUL (REVIEW_ID, USER_ID, GRADE) VALUES(?, ?, ?)";
-        Map<Integer, Boolean>  grades = review.getGrades();
+        Map<Integer, Boolean> grades = review.getGrades();
         for (var grade : grades.entrySet()) {
             jdbcTemplate.update(sql, review.getId(), grade.getKey(), grade.getValue());
         }
