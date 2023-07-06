@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -16,8 +17,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ReviewService {
-    private final static String MSG_ERR_ID = "Некорректный id";
-    private final static String MSG_ERR_NOT_FOUND = "Не найдено по id ";
     private final ReviewStorage reviewStorage;
     private final UserService userService;
 
@@ -36,8 +35,8 @@ public class ReviewService {
         validationBeforeUpdate(review);
         Review newData = reviewStorage.update(review);
         if (newData == null) {
-            log.warn(MSG_ERR_NOT_FOUND + review.getId());
-            throw new ObjectNotFoundException(MSG_ERR_NOT_FOUND + review.getId());
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getId());
+            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getId());
         }
 
         return newData;
@@ -49,12 +48,12 @@ public class ReviewService {
 
     public void validateId(Integer id) {
         if (id == null) {
-            log.warn(MSG_ERR_ID);
-            throw new ObjectNotFoundException(MSG_ERR_ID);
+            log.warn(LogMessagesReviews.MSG_ERR_ID.getMessage());
+            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_ID.getMessage());
         }
         if (id < 0) {
-            log.warn(MSG_ERR_NOT_FOUND + id);
-            throw new ObjectNotFoundException(MSG_ERR_NOT_FOUND + id);
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
+            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
         }
     }
 
@@ -62,8 +61,8 @@ public class ReviewService {
         validateId(id);
         Review review = reviewStorage.findById(id);
         if (review == null) {
-            log.warn(MSG_ERR_NOT_FOUND + id);
-            throw new ObjectNotFoundException(MSG_ERR_NOT_FOUND + id);
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
+            throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
         }
         reviewStorage.delete(id);
     }
