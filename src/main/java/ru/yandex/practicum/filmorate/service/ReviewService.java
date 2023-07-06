@@ -77,9 +77,12 @@ public class ReviewService {
 
     public Review findById(Integer id) {
         Review review = reviewStorage.findById(id);
-        if (review != null) {
-            reviewStorage.loadGrades(review);
+        if (review == null) {
+            String message = "Отзыв не найден";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
         }
+        reviewStorage.loadGrades(review);
         return review;
     }
 
