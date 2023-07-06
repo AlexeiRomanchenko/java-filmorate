@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -15,18 +18,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -34,6 +29,11 @@ public class FilmDbStorage implements FilmStorage {
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    @Value("${director.get-filmsId-sorted-by-likes}")
+    private String requestFilmIdByLikes;
+    @Value("${director.get-filmsId-sorted-by-year}")
+    private String requestFilmIdByYear;
 
     public Collection<Film> getFilms() {
         String sqlQuery = "SELECT * FROM films "
@@ -228,6 +228,27 @@ public class FilmDbStorage implements FilmStorage {
     public void clearDbLikes() {
         String sql = "DELETE FROM likes";
         jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public List<Film> getDirectorsFilms(int directorId, String sortBy) {
+        SqlRowSet filmIdRow;
+        if ("year".equals(sortBy)) {
+            filmIdRow = jdbcTemplate.queryForRowSet(requestFilmIdByYear, directorId);
+        } else {
+            filmIdRow = jdbcTemplate.queryForRowSet(requestFilmIdByLikes, directorId);
+        }
+        List<Film> films = new LinkedList<>();
+        while (filmIdRow.next()){
+            films.add(getById(filmIdRow.getInt("film_id")));
+        }
+        if(films.size()==0){
+            log.info(LogDirector.EMPTY_LIST_FILMS_DIRECTOR.getMessage() + directorId);
+            throw new ObjectNotFoundException(LogDirector.EMPTY_LIST_FILMS_DIRECTOR.getMessage() + directorId);
+        }
+        log.info(LogDirector.TRANSFER_SORTED_LIST.getMessage() + sortBy
+                + LogDirector.LIST_FILMS_DIRECTOR.getMessage() + directorId + films);
+        return films;
     }
 
 }
