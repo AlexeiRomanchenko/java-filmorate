@@ -79,7 +79,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(),
                 review.getReviewId());
-        return review;
+        return findById(review.getReviewId());
     }
 
     @Override
