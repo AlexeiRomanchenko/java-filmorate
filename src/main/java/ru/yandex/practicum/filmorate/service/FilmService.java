@@ -80,4 +80,7 @@ public class FilmService {
         return result;
     }
 
+    public List<Film> getListFilmsByIdDirectorWithSorted(int directorId, String sortBy){
+        return filmStorage.getDirectorsFilms(directorId,sortBy);
+    }
 }
