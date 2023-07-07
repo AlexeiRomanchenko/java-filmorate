@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,12 +75,11 @@ public class ReviewService {
     }
 
     public Review findById(Integer id) {
-        Review review = reviewStorage.findById(id);
-        if (review == null) {
+        Review review = reviewStorage.findById(id).orElseThrow(() -> {
             String message = "Отзыв не найден";
             log.warn(message);
             throw new ObjectNotFoundException(message);
-        }
+        });
         reviewStorage.loadGrades(review);
         return review;
     }

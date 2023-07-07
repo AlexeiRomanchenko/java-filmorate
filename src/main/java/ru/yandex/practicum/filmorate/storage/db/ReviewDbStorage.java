@@ -6,14 +6,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -26,13 +29,13 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review findById(Integer id) {
+    public Optional<Review> findById(Integer id) {
         String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
         List<Review> result = jdbcTemplate.query(sql, this::mapToReview, id);
         if (result.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return result.get(0);
+        return Optional.ofNullable(result.get(0));
     }
 
     private Review mapToReview(ResultSet resultSet, int rowNum) throws SQLException {
@@ -80,7 +83,10 @@ public class ReviewDbStorage implements ReviewStorage {
                 "WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(),
                 review.getReviewId());
-        return findById(review.getReviewId());
+        return findById(review.getReviewId()).orElseThrow(() -> {
+            String message = "Отзыв не найден";
+            throw new ObjectNotFoundException(message);
+        });
     }
 
     @Override
@@ -94,10 +100,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sql = "SELECT * FROM REVIEW_USEFUL";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
 
-        Map<Integer, Review> reviewMap = new HashMap<>();
-        for (Review review : reviews) {
-            reviewMap.put(review.getReviewId(), review);
-        }
+        Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
 
         while (sqlRowSet.next()) {
             Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
