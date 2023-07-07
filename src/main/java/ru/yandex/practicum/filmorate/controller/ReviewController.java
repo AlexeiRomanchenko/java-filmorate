@@ -72,7 +72,7 @@ public class ReviewController {
     @DeleteMapping("/{id}/dislike/{userId}")
     public void delDislike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info(LogMessagesReviews.DELETE_DISLIKE_REQUEST.getMessage());
-        reviewService.delDislike(id, userId);
+        reviewService.delLike(id, userId);
     }
 
     @GetMapping(params = {"filmId"})

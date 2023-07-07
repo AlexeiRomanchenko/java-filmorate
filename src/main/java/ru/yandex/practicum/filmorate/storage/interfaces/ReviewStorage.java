@@ -15,7 +15,9 @@ public interface ReviewStorage {
 
     Review update(Review review);
 
-    void delete(Integer id);
+    int delete(Integer id);
+
+    void loadAllGrades(List<Review> reviews);
 
     void loadGrades(Review review);
 

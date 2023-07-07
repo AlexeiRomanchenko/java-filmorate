@@ -23,15 +23,7 @@ public class Review {
     private final Map<Integer, Boolean> grades = new HashMap<>();
 
     public int getUseful() {
-        int useful = 0;
-        for (var positive : grades.values()) {
-            if (positive) {
-                useful++;
-            } else {
-                useful--;
-            }
-        }
-        return useful;
+        return grades.values().stream().mapToInt(positive -> positive ? 1 : -1).sum();
     }
 
     public void addGrade(Integer userId, boolean positive) {

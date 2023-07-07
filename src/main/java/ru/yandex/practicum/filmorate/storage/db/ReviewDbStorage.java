@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,9 +84,27 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void delete(Integer id) {
+    public int delete(Integer id) {
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", id);
-        jdbcTemplate.update("DELETE FROM REVIEWS WHERE REVIEW_ID = ?", id);
+        return jdbcTemplate.update("DELETE FROM REVIEWS WHERE REVIEW_ID = ?", id);
+    }
+
+    @Override
+    public void loadAllGrades(List<Review> reviews) {
+        String sql = "SELECT * FROM REVIEW_USEFUL";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
+
+        Map<Integer, Review> reviewMap = new HashMap<>();
+        for (Review review : reviews) {
+            reviewMap.put(review.getReviewId(), review);
+        }
+
+        while (sqlRowSet.next()) {
+            Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
+            if (review != null) {
+                review.addGrade(sqlRowSet.getInt("USER_ID"), sqlRowSet.getBoolean("GRADE"));
+            }
+        }
     }
 
     @Override

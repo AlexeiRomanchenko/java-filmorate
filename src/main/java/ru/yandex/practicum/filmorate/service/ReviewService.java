@@ -60,17 +60,15 @@ public class ReviewService {
 
     public void delete(Integer id) {
         validateId(id);
-        Review review = reviewStorage.findById(id);
-        if (review == null) {
+        if (reviewStorage.delete(id) == 0) {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
         }
-        reviewStorage.delete(id);
     }
 
     public List<Review> findAll() {
         List<Review> reviews = reviewStorage.findAll();
-        reviews.forEach(reviewStorage::loadGrades);
+        reviewStorage.loadAllGrades(reviews);
         reviews.sort(Comparator.comparing(Review::getUseful).reversed());
         return reviews;
     }
@@ -103,10 +101,6 @@ public class ReviewService {
     }
 
     public void delLike(Integer id, Integer userId) {
-        delGrade(id, userId);
-    }
-
-    public void delDislike(Integer id, Integer userId) {
         delGrade(id, userId);
     }
 
@@ -146,7 +140,7 @@ public class ReviewService {
         } else {
             reviews = reviewStorage.findAllByFilm(filmId);
         }
-        reviews.forEach(reviewStorage::loadGrades);
+        reviewStorage.loadAllGrades(reviews);
 
         return reviews.stream()
                 .sorted(Comparator.comparing(Review::getUseful).reversed())
