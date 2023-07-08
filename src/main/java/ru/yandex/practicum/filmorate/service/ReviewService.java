@@ -45,7 +45,7 @@ public class ReviewService {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
         }
-        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getFilmId());
+        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getReviewId());
         return newData;
     }
 
@@ -67,7 +67,7 @@ public class ReviewService {
     public void delete(Integer id) {
         validateId(id);
         Review review = findById(id);
-        eventService.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
+        eventService.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getReviewId());
         if (reviewStorage.delete(id) == 0) {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
