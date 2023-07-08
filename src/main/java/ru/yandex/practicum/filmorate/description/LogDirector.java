@@ -21,10 +21,11 @@ public enum LogDirector {
     TABLE_DIRECTOR_CLEAR("Таблица режиссеров очищена"),
     EMPTY_LIST_FILMS_DIRECTOR("Пустой список фильмов режиссера "),
     TRANSFER_SORTED_LIST("Передан отсортированный по"),
-    LIST_FILMS_DIRECTOR("список фильмов режиссера"),
+    LIST_FILMS_DIRECTOR("список фильмов режиссера."),
     DELETE_DIRECTOR("Удален режиссер");
 
     private final String message;
+
     LogDirector(String message) {
         this.message = message;
     }

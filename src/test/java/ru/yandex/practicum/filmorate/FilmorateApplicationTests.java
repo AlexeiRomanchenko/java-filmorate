@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
@@ -21,6 +22,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -102,8 +104,8 @@ class FilmorateApplicationTests {
 
         Collection<Film> films = filmStorage.getFilms();
 
-        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
-                " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
+        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
+                "duration=9879, genres=[], directors=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
 
     }
 
@@ -128,8 +130,8 @@ class FilmorateApplicationTests {
         assertEquals("Агент009", tempFilm.getName());
         assertEquals("Бонд", tempFilm.getDescription());
 
-        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
-                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
+        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, duration=9879," +
+                        " genres=[], directors=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 filmStorage.getFilms().toString());
     }
 
@@ -160,8 +162,8 @@ class FilmorateApplicationTests {
                 .mpa(mpaController.getRatingMpaById(5))
                 .build();
         filmController.create(film);
-        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
-                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
+        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
+                        " duration=9879, genres=[], directors=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 String.valueOf(filmController.getFilms()));
     }
 

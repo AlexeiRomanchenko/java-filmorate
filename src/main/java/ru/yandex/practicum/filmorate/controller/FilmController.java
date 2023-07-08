@@ -72,10 +72,10 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public Collection<Film> getListFilmsByIdDirectorWithSorted(@PathVariable int directorId,
-                                              @RequestParam(defaultValue = "likes") String sortBy) {
+                                                               @RequestParam(defaultValue = "likes") String sortBy) {
         log.info(LogDirector.GET_ALL_FILMS_BY_DIRECTOR_REQUEST.getMessage() + directorId
                 + LogDirector.SORTED_BY + sortBy);
-        return filmService.getListFilmsByIdDirectorWithSorted(directorId,sortBy);
+        return filmService.getListFilmsByIdDirectorWithSorted(directorId, sortBy);
     }
 
 }

@@ -46,13 +46,13 @@ public class DirectorDbStorage implements DirecorStorage {
     @Override
     public Director addDirector(Director director) {
 
-        if(isPresentInDB(director)){
+        if (isPresentInDB(director)) {
             throw new DirectorAlreadyExistException(LogDirector.FAILED_TO_ADD_DIRECTOR.getMessage()
-            + LogDirector.DIRECTOR_ALREADY_EXISTS.getMessage());
+                    + LogDirector.DIRECTOR_ALREADY_EXISTS.getMessage());
         }
-        jdbcTemplate.update(requestInsertDirector,director.getName());
-        SqlRowSet idRow =getIdRowsFromDB(director);
-        if(idRow.next()){
+        jdbcTemplate.update(requestInsertDirector, director.getName());
+        SqlRowSet idRow = getIdRowsFromDB(director);
+        if (idRow.next()) {
             director.setId(idRow.getInt("director_id"));
         }
         log.info(LogDirector.ADD_DIRECTOR.getMessage() + director);
@@ -63,7 +63,7 @@ public class DirectorDbStorage implements DirecorStorage {
     public List<Director> getAllDirectors() {
         List<Director> directors = new ArrayList<>();
         SqlRowSet idsRow = jdbcTemplate.queryForRowSet(requestAllIDs);
-        while (idsRow.next()){
+        while (idsRow.next()) {
             Integer id = idsRow.getInt("director_id");
             directors.add(getDirectorById(id));
         }
@@ -75,7 +75,7 @@ public class DirectorDbStorage implements DirecorStorage {
     public Director getDirectorById(Integer id) {
 
         SqlRowSet directorRow = getDirectorRowByID(id);
-        if(!directorRow.next()){
+        if (!directorRow.next()) {
             throw new ObjectNotFoundException(LogDirector.FAILED_TO_TRANSFER_DIRECTOR.getMessage()
                     + LogDirector.NO_FOUND_DIRECTOR.getMessage());
         }
@@ -87,18 +87,18 @@ public class DirectorDbStorage implements DirecorStorage {
     @Override
     public Director updateDirector(Director director) {
 
-        if(!isPresentInDB(director.getId())){
+        if (!isPresentInDB(director.getId())) {
             throw new ObjectNotFoundException(LogDirector.FAILED_TO_UPDATE_DIRECTOR.getMessage()
-            + LogDirector.NO_FOUND_DIRECTOR);
+                    + LogDirector.NO_FOUND_DIRECTOR);
         }
-        if(isPresentInDB(director)){
+        if (isPresentInDB(director)) {
             throw new ObjectNotFoundException(LogDirector.FAILED_TO_UPDATE_DIRECTOR.getMessage()
                     + LogDirector.DIRECTOR_ALREADY_EXISTS.getMessage());
         }
         Director bufferDirector = getDirectorById(director.getId());
-        try{
-            jdbcTemplate.update(requestUpdateDirector,director.getName(),director.getId());
-        }catch (DataIntegrityViolationException | BadSqlGrammarException ex){
+        try {
+            jdbcTemplate.update(requestUpdateDirector, director.getName(), director.getId());
+        } catch (DataIntegrityViolationException | BadSqlGrammarException ex) {
             updateDirector(bufferDirector);
             throw new RuntimeException(LogSQL.SQL_EXCEPTION.getMessage());
         }
@@ -112,7 +112,7 @@ public class DirectorDbStorage implements DirecorStorage {
     public Director deleteDirectorById(Integer id) {
 
         SqlRowSet directorRow = getDirectorRowByID(id);
-        if(!directorRow.next()){
+        if (!directorRow.next()) {
             throw new ObjectNotFoundException(LogDirector.FAILED_TO_REMOVE_DIRECTOR.getMessage()
                     + LogDirector.NO_FOUND_DIRECTOR.getMessage()
             );
@@ -122,8 +122,8 @@ public class DirectorDbStorage implements DirecorStorage {
                 .id(directorRow.getInt("director_id"))
                 .name(directorRow.getString("director_name"))
                 .build();
-        jdbcTemplate.execute(requestDeleteById+id);
-        if(getAllDirectors().size()==0){
+        jdbcTemplate.execute(requestDeleteById + id);
+        if (getAllDirectors().size() == 0) {
             jdbcTemplate.execute(requestResetPK);
         }
         log.info(LogDirector.DELETE_DIRECTOR.getMessage() + removedDirector);
@@ -135,8 +135,8 @@ public class DirectorDbStorage implements DirecorStorage {
     public void deleteAllDirectors() {
 
         SqlRowSet idsRow = jdbcTemplate.queryForRowSet(requestAllIDs);
-        while (idsRow.next()){
-            jdbcTemplate.execute(requestDeleteById+idsRow.getInt("director_id"));
+        while (idsRow.next()) {
+            jdbcTemplate.execute(requestDeleteById + idsRow.getInt("director_id"));
         }
         jdbcTemplate.execute(requestResetPK);
         log.info(LogDirector.TABLE_DIRECTOR_CLEAR.getMessage());
@@ -158,11 +158,11 @@ public class DirectorDbStorage implements DirecorStorage {
     }
 
     private SqlRowSet getDirectorRowByID(Integer id) {
-        return jdbcTemplate.queryForRowSet(requestGetDirectorById,id);
+        return jdbcTemplate.queryForRowSet(requestGetDirectorById, id);
     }
 
     private SqlRowSet getIdRowsFromDB(Director director) {
-        SqlRowSet rows = jdbcTemplate.queryForRowSet(requestGetIdByDirector,director.getName());
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(requestGetIdByDirector, director.getName());
         return rows;
     }
 

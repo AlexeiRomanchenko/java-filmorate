@@ -1,0 +1,20 @@
+director:
+  insert-director: "INSERT INTO directors (director_name) VALUES (?)"
+  delete-director-by-id: "DELETE FROM directors WHERE director_id = "
+  get-id-by-director: "SELECT director_id FROM directors WHERE director_name = ?"
+  get-director-by-id : "SELECT * FROM directors WHERE director_id = ?"
+  get-all-IDs: "SELECT director_id FROM directors"
+  reset-primary-key: "ALTER TABLE directors ALTER COLUMN director_id RESTART WITH 1"
+  update-director: "UPDATE directors SET director_name = ? WHERE director_id = ?"
+  get-filmsId-sorted-by-likes: "SELECT FILMS_DIRECTORS.film_id
+    FROM FILMS_DIRECTORS
+    LEFT JOIN likes ON FILMS_DIRECTORS.FILM_ID = likes.FILM_ID
+    GROUP BY FILMS_DIRECTORS.FILM_ID
+    HAVING FILMS_DIRECTORS.DIRECTOR_ID = ?
+    ORDER BY COUNT(likes.USER_ID) DESC;"
+  get-filmsId-sorted-by-year: "SELECT films.film_id
+    FROM films
+    INNER JOIN FILMS_DIRECTORS ON FILMS_DIRECTORS.FILM_ID  = films.FILM_ID
+    GROUP BY films.FILM_ID
+    HAVING FILMS_DIRECTORS.DIRECTOR_ID = ?
+    ORDER BY films.RELEASE_DATE;"

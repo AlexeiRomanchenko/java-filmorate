@@ -30,6 +30,7 @@ public class DirectorService {
     public Director updateDirector(Director director) {
         return directorStorage.updateDirector(director);
     }
+
     public void deleteAllDirectors() {
         directorStorage.deleteAllDirectors();
     }
