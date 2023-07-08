@@ -224,15 +224,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findRecommendations(Integer userId) {
-        jdbcTemplate.update("DROP TABLE IF EXISTS likes_rank;");
-        String createLikesRank = "CREATE TEMPORARY TABLE IF NOT EXISTS likes_rank AS " +
-                "SELECT similar.user_id, COUNT(*) rank " +
-                "FROM likes target " +
-                "JOIN likes similar ON target.film_id = similar.film_id AND target.user_id != similar.user_id " +
-                "WHERE target.user_id = ? " +
-                "GROUP BY similar.user_id;";
-        jdbcTemplate.update(createLikesRank, userId);
-        String sqlQuery = "SELECT f.*, mpa.rating_name " +
+        String sqlQuery = "WITH likes_rank AS " +
+                "   (SELECT similar.user_id, COUNT(*) rank " +
+                "   FROM likes target " +
+                "   JOIN likes similar ON target.film_id = similar.film_id AND target.user_id != similar.user_id " +
+                "   WHERE target.user_id = ? " +
+                "   GROUP BY similar.user_id) " +
+                "SELECT f.*, mpa.rating_name " +
                 "FROM films f " +
                 "LEFT JOIN likes similar ON similar.film_id = f.film_id " +
                 "LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id " +
@@ -241,6 +239,6 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE target.film_id IS NULL " +
                 "GROUP BY similar.film_id " +
                 "ORDER BY SUM(likes_rank.rank) DESC;";
-        return addGenreForList(jdbcTemplate.query(sqlQuery, this::makeFilm, userId));
+        return addGenreForList(jdbcTemplate.query(sqlQuery, this::makeFilm, userId, userId));
     }
 }
