@@ -34,7 +34,7 @@ public class ReviewService {
     public Review create(Review review) {
         validationBeforeCreate(review);
         Review newData = reviewStorage.create(review);
-        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getFilmId());
+        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getReviewId());
         return newData;
     }
 
