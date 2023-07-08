@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
