@@ -4,6 +4,8 @@ public enum LogMessagesFilms {
     USER_ALREADY_ADD_LIKE("Этот пользователь уже ставил лайк к этому фильму."),
     GET_ALL_FILMS_REQUEST("Получен запрос на получение всех фильмов."),
     GET_LIST_POPULAR_FILMS_REQUEST("Получен запрос на получение списка популярных фильмов по количеству лайков."),
+    GET_LIST_POPULAR_SORTED_FILMS_REQUEST("Получен запрос на получение списка популярных фильмов по количеству лайков " +
+            "и отсортированных по жанру и/или году создания"),
     USER_SET_LIKE_FILM_REQUEST("Получен запрос на установку лайка."),
     USER_DELETE_LIKE_FILM_REQUEST("Получен запрос на удаление лайка."),
     FILMS_ID(" FilmID = "),

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -10,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -208,6 +208,7 @@ public class FilmDbStorage implements FilmStorage {
         String mpaName = srs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
+
         Film film = Film.builder()
                 .id(id)
                 .name(name)
@@ -228,6 +229,37 @@ public class FilmDbStorage implements FilmStorage {
     public void clearDbLikes() {
         String sql = "DELETE FROM likes";
         jdbcTemplate.update(sql);
+    }
+
+    public List<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {
+        String sqlRequirement;
+        if (genreId != 0 && releaseYear != 0) {
+            sqlRequirement = "LEFT JOIN film_genres ON films.film_id = film_genres.film_id "
+                           + "WHERE film_genres.genre_id = " + genreId
+                           + " AND EXTRACT(YEAR FROM films.release_date) = " + releaseYear + " ";
+
+        } else if (genreId != 0) {
+            sqlRequirement = "LEFT JOIN film_genres ON films.film_id = film_genres.film_id "
+                           + "WHERE film_genres.genre_id = " + genreId + " ";
+
+        } else if (releaseYear != 0) {
+            sqlRequirement = "WHERE EXTRACT(YEAR FROM films.release_date) = " + releaseYear + " ";
+
+        } else {
+            sqlRequirement = "";
+        }
+
+        String sqlQuery = "SELECT * FROM films "
+                + "LEFT JOIN likes ON likes.film_id = films.film_id "
+                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
+                + sqlRequirement
+                + "GROUP BY films.film_id, likes.user_id "
+                + "ORDER BY COUNT (likes.film_id) DESC "
+                + "LIMIT "
+                + count;
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        return addGenreForList(films);
+
     }
 
 }
