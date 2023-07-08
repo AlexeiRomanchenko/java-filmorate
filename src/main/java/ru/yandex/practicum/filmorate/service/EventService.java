@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
