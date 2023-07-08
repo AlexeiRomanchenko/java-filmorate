@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.description.EventType;
+import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,10 +16,12 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, EventService eventService) {
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
 
     public Collection<User> getUsers() {
@@ -61,11 +65,13 @@ public class UserService {
 
         checkUser(id, friendId);
         userStorage.addFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     public void removeFromListFriend(int id, int friendId) {
         checkUser(id, friendId);
         userStorage.removeFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     public List<User> getListFriendsUserById(int id) {

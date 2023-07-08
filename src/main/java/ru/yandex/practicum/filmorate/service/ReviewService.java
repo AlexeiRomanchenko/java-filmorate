@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
+import ru.yandex.practicum.filmorate.description.EventType;
+import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,16 +22,20 @@ import java.util.stream.Collectors;
 public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserService userService;
+    private final EventService eventService;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage, UserService userService) {
+    public ReviewService(ReviewStorage reviewStorage, UserService userService, EventService eventService) {
         this.reviewStorage = reviewStorage;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     public Review create(Review review) {
         validationBeforeCreate(review);
-        return reviewStorage.create(review);
+        Review newData = reviewStorage.create(review);
+        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getFilmId());
+        return newData;
     }
 
     public Review update(Review review) {
@@ -39,7 +45,7 @@ public class ReviewService {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
         }
-
+        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getFilmId());
         return newData;
     }
 
@@ -60,6 +66,8 @@ public class ReviewService {
 
     public void delete(Integer id) {
         validateId(id);
+        Review review = findById(id);
+        eventService.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
         if (reviewStorage.delete(id) == 0) {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
