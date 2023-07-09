@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -19,11 +22,9 @@ public class RatingMpa {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("RatingMpa{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "RatingMpa{" + "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 
 }

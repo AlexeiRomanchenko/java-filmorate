@@ -1,23 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
-@Builder
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-public class Genre {
-
+@Builder
+@ToString
+public class Director {
     @Positive
     private int id;
-
-    @NotBlank
+    @NotBlank(message = "Имя режиссера не должно быть пустым.")
     private String name;
 
 }

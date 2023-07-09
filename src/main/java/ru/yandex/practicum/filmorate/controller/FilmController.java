@@ -2,18 +2,22 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final FilmService filmService;
 
@@ -38,6 +42,12 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         log.info(LogMessagesFilms.UPDATE_FILM_REQUEST.getMessage());
         return filmService.update(film);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable int filmId) {
+        log.info(LogMessagesFilms.DELETE_FILM_REQUEST.getMessage() + filmId);
+        filmService.deleteFilm(filmId);
     }
 
     @GetMapping("/{id}")
@@ -66,6 +76,26 @@ public class FilmController {
     public Collection<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") int count) {
         log.info(LogMessagesFilms.GET_LIST_POPULAR_FILMS_REQUEST.getMessage());
         return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        log.info(LogMessagesFilms.GET_COMMON_FILMS_FOR_USERS_WITH_ID.getMessage() + userId + " и " + friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getListFilmsByIdDirectorWithSorted(@PathVariable int directorId,
+                                                               @RequestParam(defaultValue = "likes") String sortBy) {
+        log.info(LogDirector.GET_ALL_FILMS_BY_DIRECTOR_REQUEST.getMessage() + directorId
+                + LogDirector.SORTED_BY + sortBy);
+        return filmService.getListFilmsByIdDirectorWithSorted(directorId, sortBy);
+    }
+
+    @GetMapping("/search")  //GET /films/search?query=крад&by=director,title
+    public Collection<Film> getSearchedFilms(@RequestParam @NotBlank String query, @RequestParam(defaultValue = "title") String by) {
+        log.info(String.format(LogMessagesFilms.SEARCH_FOR_FILM.getMessage(), query, by));
+        return filmService.getSearchedFilms(query, by);
     }
 
 }

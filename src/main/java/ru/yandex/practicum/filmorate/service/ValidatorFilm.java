@@ -19,7 +19,7 @@ public class ValidatorFilm {
         }
 
         if (!film.getReleaseDate().isAfter(localDate)) {
-            log.error(LogMessagesFilms.FILM_NOT_VALIDATED_DATE.getMessage() + film.toString());
+            log.error(LogMessagesFilms.FILM_NOT_VALIDATED_DATE.getMessage() + film);
             throw new ValidationException(LogMessagesFilms.FILM_NOT_VALIDATED_DATE.getMessage());
         }
 

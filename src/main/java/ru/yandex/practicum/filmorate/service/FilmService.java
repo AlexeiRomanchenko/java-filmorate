@@ -2,30 +2,49 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
+import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public Film createFilm(Film film) {
         ValidatorFilm.validator(film);
-        filmStorage.create(film);
-        return film;
+        return filmStorage.create(film);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        checkUserId(userId);
+        checkUserId(friendId);
+        return new ArrayList<>(filmStorage.getCommonFilms(userId, friendId));
+    }
+
+    private void checkUserId(Integer id) {
+        if (id < 1 || userStorage.getById(id) == null) {
+            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + id);
+        }
     }
 
     public Film update(Film film) {
@@ -37,6 +56,11 @@ public class FilmService {
             ValidatorFilm.validationFailed(film);
 
         return film;
+    }
+
+    public void deleteFilm(int id) {
+        ValidatorFilm.validator(filmStorage.getById(id));
+        filmStorage.delete(id);
     }
 
     public Collection<Film> getFilms() {
@@ -55,8 +79,11 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         Film film = filmStorage.getById(filmId);
         if (film != null) {
+
             if (userStorage.getById(userId) != null) {
+
                 filmStorage.addLike(filmId, userId);
+                eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
             } else {
                 throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + userId);
             }
@@ -73,11 +100,25 @@ public class FilmService {
 
         filmStorage.removeLike(filmId, userId);
 
+        eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
-        List<Film> result = new ArrayList<>(filmStorage.getPopular(count));
-        return result;
+        return new ArrayList<>(filmStorage.getPopular(count));
     }
 
+    public Collection<Film> getRecommendations(int id) {
+        return filmStorage.findRecommendations(id);
+    }
+
+    public List<Film> getListFilmsByIdDirectorWithSorted(int directorId, String sortBy) {
+        return filmStorage.getDirectorsFilms(directorId, sortBy);
+    }
+
+    public Collection<Film> getSearchedFilms(String query, String by) {
+        List<String> target = new ArrayList<>(List.of("title", "director"));
+        List<String> searchParams = Arrays.stream(by.split(",")).map(String::trim).collect(Collectors.toList());
+        target.retainAll(searchParams);
+        return filmStorage.findSearchedFilm(query, target);
+    }
 }
