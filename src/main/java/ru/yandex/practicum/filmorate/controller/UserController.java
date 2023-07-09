@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    EventService eventService;
+    private final EventService eventService;
 
     @Autowired
     public UserController(UserService userService, EventService eventService) {
