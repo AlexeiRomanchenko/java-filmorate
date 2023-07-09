@@ -16,7 +16,8 @@ public enum LogMessagesFilms {
     FILM_NOT_VALIDATED_DATE("Данный фильм не прошел валидацию по дате: "),
     FILM_DATA_UPDATED("Данные фильма обновлены: "),
     FILM_NO_FOUND_WITH_ID("Фильма с таким id нет."),
-    FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: ");
+    FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: "),
+    FILM_DELETE_REQUEST("Получен запрос на удаление фильма с ID = ");;
 
     private final String message;
 

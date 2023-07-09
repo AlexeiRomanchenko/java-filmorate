@@ -79,9 +79,11 @@ public class FilmDbStorage implements FilmStorage {
         return getById(filmId);
     }
 
-    public String delete(int filmId) {
-        String sqlQuery = "DELETE FROM films WHERE film_id = ?";
-        return sqlQuery;
+    @Override
+    public void delete(int filmId) {
+        String sqlQuery = "DELETE FROM films "
+                        + "WHERE film_id = " + filmId;
+        jdbcTemplate.update(sqlQuery);
     }
 
     public Film getById(Integer filmId) {

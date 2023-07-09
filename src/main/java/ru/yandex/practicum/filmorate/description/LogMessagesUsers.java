@@ -19,7 +19,8 @@ public enum LogMessagesUsers {
     VALIDATION_FAILED("Ошибка валидации."),
     USER_DATA_UPDATED("Данные пользователя обновлены: "),
     USER_NO_FOUND_WITH_ID("Пользователя с таким Id не существует."),
-    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: ");
+    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: "),
+    USER_DELETE_REQUEST("Получен запрос на удаление пользователя с ID = ");
 
     private final String message;
 

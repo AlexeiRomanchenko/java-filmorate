@@ -80,4 +80,11 @@ public class FilmService {
         return result;
     }
 
+    public void deleteFilm(int filmId) {
+        if (filmId < 0) {
+            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
+        }
+        filmStorage.delete(filmId);
+    }
+
 }

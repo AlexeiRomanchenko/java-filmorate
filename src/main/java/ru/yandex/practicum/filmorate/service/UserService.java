@@ -83,4 +83,11 @@ public class UserService {
         userStorage.getById(friendId);
     }
 
+    public void deleteUser(int id) {
+        if (id < 0) {
+            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
+        }
+        userStorage.delete(id);
+    }
+
 }

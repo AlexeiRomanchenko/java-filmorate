@@ -11,8 +11,9 @@ public interface UserStorage extends FriendsStorage {
 
     User update(User user);
 
-    String delete(int id);
+    void delete(int id);
 
     User getById(Integer id);
+
 
 }
