@@ -52,7 +52,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        getById(user.getId());
         String sqlQuery = "UPDATE users "
                 + "SET user_name = ?, "
                 + "login = ?, "
@@ -67,7 +66,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void delete(int userId) {
         String sqlQuery = "DELETE FROM users WHERE user_id = " + userId;
-        jdbcTemplate.update(sqlQuery);
+        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
+        if (numberModifiedRows < 1) {
+            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
+        }
     }
 
     public User getById(Integer userId) {

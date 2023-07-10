@@ -41,6 +41,13 @@ public class UserService {
         return user;
     }
 
+    public void deleteUser(int id) {
+        if (id < 1) {
+            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
+        }
+        userStorage.delete(id);
+    }
+
     public User findUser(int id) {
         User user = userStorage.getById(id);
         if (user == null) {
@@ -81,13 +88,6 @@ public class UserService {
     private void checkUser(Integer userId, Integer friendId) {
         userStorage.getById(userId);
         userStorage.getById(friendId);
-    }
-
-    public void deleteUser(int id) {
-        if (id < 0) {
-            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
-        }
-        userStorage.delete(id);
     }
 
 }

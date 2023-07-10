@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -63,7 +64,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        getById(film.getId());
         String sqlQuery = "UPDATE films "
                 + "SET film_name = ?, "
                 + "description = ?, "
@@ -82,8 +82,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void delete(int filmId) {
         String sqlQuery = "DELETE FROM films "
-                        + "WHERE film_id = " + filmId;
-        jdbcTemplate.update(sqlQuery);
+                + "WHERE film_id = " + filmId;
+        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
+        if (numberModifiedRows < 1) {
+            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
+        }
     }
 
     public Film getById(Integer filmId) {

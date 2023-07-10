@@ -39,6 +39,13 @@ public class FilmService {
         return film;
     }
 
+    public void deleteFilm(int filmId) {
+        if (filmId < 1) {
+            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
+        }
+        filmStorage.delete(filmId);
+    }
+
     public Collection<Film> getFilms() {
         return filmStorage.getFilms();
     }
@@ -78,13 +85,6 @@ public class FilmService {
     public Collection<Film> getPopularFilms(int count) {
         List<Film> result = new ArrayList<>(filmStorage.getPopular(count));
         return result;
-    }
-
-    public void deleteFilm(int filmId) {
-        if (filmId < 0) {
-            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
-        }
-        filmStorage.delete(filmId);
     }
 
 }

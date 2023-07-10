@@ -40,6 +40,12 @@ public class UserController {
         return userService.update(user);
     }
 
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable int userId) {
+        log.info(LogMessagesUsers.DELETE_USER_REQUEST.getMessage() + userId);
+        userService.deleteUser(userId);
+    }
+
     @GetMapping("/{id}")
     public User findUser(@PathVariable int id) {
         log.info(LogMessagesUsers.GET_USER_BY_ID_REQUEST.getMessage() + id);
@@ -74,12 +80,6 @@ public class UserController {
                 + LogMessagesUsers.USER_ID.getMessage() + id
                 + LogMessagesUsers.USER_ID.getMessage() + otherId);
         return userService.getCommonFriends(id, otherId);
-    }
-
-    @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable int userId) {
-        log.info(LogMessagesUsers.USER_DELETE_REQUEST.getMessage() + userId);
-        userService.deleteUser(userId);
     }
 
 }

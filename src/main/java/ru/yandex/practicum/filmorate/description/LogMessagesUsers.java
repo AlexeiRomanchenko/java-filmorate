@@ -6,6 +6,7 @@ public enum LogMessagesUsers {
     ID_NOT_POSITIVE("Id должен быть положительным."),
     GET_ALL_USERS_REQUEST("Получен запрос на получение всех пользователей."),
     CREATE_USER_REQUEST("Получен запрос на создание пользователя."),
+    DELETE_USER_REQUEST("Получен запрос на удаление пользователя с ID = "),
     USER_ADD_FRIEND_REQUEST("Получен запрос на добавление друга."),
     USER_DELETE_FRIEND_REQUEST("Получен запрос на удаление друга из списка друзей."),
     GET_LIST_FRIENDS_USER_REQUEST("Получен запрос на получение списка друзей пользователя."),
@@ -19,8 +20,7 @@ public enum LogMessagesUsers {
     VALIDATION_FAILED("Ошибка валидации."),
     USER_DATA_UPDATED("Данные пользователя обновлены: "),
     USER_NO_FOUND_WITH_ID("Пользователя с таким Id не существует."),
-    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: "),
-    USER_DELETE_REQUEST("Получен запрос на удаление пользователя с ID = ");
+    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: ");
 
     private final String message;
 

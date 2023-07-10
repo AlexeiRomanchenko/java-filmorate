@@ -40,6 +40,12 @@ public class FilmController {
         return filmService.update(film);
     }
 
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable int filmId) {
+        log.info(LogMessagesFilms.DELETE_FILM_REQUEST.getMessage() + filmId);
+        filmService.deleteFilm(filmId);
+    }
+
     @GetMapping("/{id}")
     public Film findFilm(@PathVariable int id) {
         log.info(LogMessagesFilms.GET_FILM_BY_ID_REQUEST.getMessage() + id);
@@ -66,12 +72,6 @@ public class FilmController {
     public Collection<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10") int count) {
         log.info(LogMessagesFilms.GET_LIST_POPULAR_FILMS_REQUEST.getMessage());
         return filmService.getPopularFilms(count);
-    }
-
-    @DeleteMapping("/{filmId}")
-    public void deleteFilm(@PathVariable int filmId) {
-        log.info(LogMessagesFilms.FILM_DELETE_REQUEST.getMessage() + filmId);
-        filmService.deleteFilm(filmId);
     }
 
 }
