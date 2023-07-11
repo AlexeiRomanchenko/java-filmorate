@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -207,7 +208,6 @@ public class FilmDbStorage implements FilmStorage {
         String mpaName = srs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
-
         Film film = Film.builder()
                 .id(id)
                 .name(name)
