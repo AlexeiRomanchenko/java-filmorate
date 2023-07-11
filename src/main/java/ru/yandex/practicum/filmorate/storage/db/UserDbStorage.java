@@ -19,6 +19,7 @@ import java.util.Objects;
 @Repository
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private static final String GET_USER_ID = "SELECT user_id FROM users WHERE user_id=?";
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -32,6 +33,11 @@ public class UserDbStorage implements UserStorage {
             users.add(userMap(srs));
         }
         return users;
+    }
+
+    @Override
+    public boolean containsUser(int id) {
+        return jdbcTemplate.queryForRowSet(GET_USER_ID, id).next();
     }
 
     @Override
@@ -108,7 +114,7 @@ public class UserDbStorage implements UserStorage {
     public List<User> getCommonFriends(int friend1, int friend2) {
         List<User> commonFriends = new ArrayList<>();
         String sqlQuery = "SELECT * FROM users "
-                + "WHERE users.user_id IN (SELECT friend_id from friends "
+                + "WHERE users.user_id IN (SELECT friend_id FROM friends "
                 + "WHERE user_id IN (?, ?) "
                 + "AND friend_id NOT IN (?, ?))";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, friend1, friend2, friend1, friend2);

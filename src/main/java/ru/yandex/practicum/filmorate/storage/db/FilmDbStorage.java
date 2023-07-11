@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,6 +31,9 @@ import java.util.stream.Collectors;
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+
+    @Value("${film.requestCommonFilmForTwoUsers}")
+    private String requestCommonFilmForTwoUsers;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -180,11 +184,12 @@ public class FilmDbStorage implements FilmStorage {
         String name = rs.getString("film_name");
         String description = rs.getString("description");
         int duration = rs.getInt("duration");
-        LocalDate releaseDate = rs.getTimestamp("release_date").toLocalDateTime().toLocalDate();
+        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
         int mpaId = rs.getInt("rating_id");
         String mpaName = rs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
-        Set<Genre> genres = new HashSet<>();
+        Set<Genre> genres = getGenres(filmId);
+        Set<Integer> likes = getLikes(filmId);
         Film film = Film.builder()
                 .id(filmId)
                 .name(name)
@@ -193,6 +198,7 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genres)
                 .mpa(mpa)
                 .releaseDate(releaseDate)
+                .likes(likes)
                 .build();
         return film;
     }
@@ -202,20 +208,21 @@ public class FilmDbStorage implements FilmStorage {
         String name = srs.getString("film_name");
         String description = srs.getString("description");
         int duration = srs.getInt("duration");
-        LocalDate releaseDate = Objects.requireNonNull(srs.getTimestamp("release_date"))
-                .toLocalDateTime().toLocalDate();
+        LocalDate releaseDate = Objects.requireNonNull(srs.getDate("release_date")).toLocalDate();
         int mpaId = srs.getInt("rating_id");
         String mpaName = srs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
+        Set<Integer> likes = getLikes(id);
         Film film = Film.builder()
                 .id(id)
                 .name(name)
                 .description(description)
                 .duration(duration)
-                .genres(genres)
                 .mpa(mpa)
+                .genres(genres)
                 .releaseDate(releaseDate)
+                .likes(likes)
                 .build();
         return film;
     }
@@ -228,6 +235,22 @@ public class FilmDbStorage implements FilmStorage {
     public void clearDbLikes() {
         String sql = "DELETE FROM likes";
         jdbcTemplate.update(sql);
+    }
+
+    private Set<Integer> getLikes(int filmId) {
+        String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
+        List<Integer> foundFilmLikes = jdbcTemplate.queryForList(sqlQuery, Integer.class, filmId);
+        Set<Integer> likes = new HashSet<>(foundFilmLikes);
+        return likes;
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String getCommonQuery = requestCommonFilmForTwoUsers;
+        List<Film> list = jdbcTemplate.query(getCommonQuery, this::makeFilm, userId, friendId);
+
+        System.out.println(list);
+        return list;
     }
 
 }

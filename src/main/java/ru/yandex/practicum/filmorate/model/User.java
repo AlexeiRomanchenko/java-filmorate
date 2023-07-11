@@ -20,7 +20,10 @@ public class User {
     private String email;
     private String login;
     private String name;
+    @PastOrPresent
+    @NotNull
     private LocalDate birthday;
+    private Set<Integer> likes;
 
     public void addFriendById(long id) {
         checkOnNullFriends();

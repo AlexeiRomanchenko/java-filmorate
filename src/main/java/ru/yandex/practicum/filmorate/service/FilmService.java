@@ -28,6 +28,19 @@ public class FilmService {
         return film;
     }
 
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        checkUserId(userId);
+        checkUserId(friendId);
+        List<Film> films = new ArrayList<>(filmStorage.getCommonFilms(userId, friendId));
+        return films;
+    }
+
+    private void checkUserId(Integer id) {
+        if (id < 1 || userStorage.getById(id) == null) {
+            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + id);
+        }
+    }
+
     public Film update(Film film) {
         ValidatorFilm.validator(film);
 

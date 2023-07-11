@@ -15,11 +15,12 @@ public enum LogMessagesUsers {
     UPDATE_USER_REQUEST("Получен запрос на обновление данных пользователя."),
     GET_USER_BY_ID_REQUEST("Получен запрос на получение пользователя с ID = "),
     USER_ADD("Добавлен пользователь: "),
-    DELETE_USER("Пользователь идален из базы"),
+    DELETE_USER("Пользователь удален из базы"),
     VALIDATION_FAILED("Ошибка валидации."),
     USER_DATA_UPDATED("Данные пользователя обновлены: "),
     USER_NO_FOUND_WITH_ID("Пользователя с таким Id не существует."),
-    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: ");
+    USER_ALREADY_EXISTS("Данный пользователь уже присутствует в базе: "),
+    NO_FOUND("не найден");
 
     private final String message;
 

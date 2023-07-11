@@ -102,8 +102,8 @@ class FilmorateApplicationTests {
 
         Collection<Film> films = filmStorage.getFilms();
 
-        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
-                " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
+        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-28," +
+                " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]", films.toString());
 
     }
 
@@ -128,8 +128,8 @@ class FilmorateApplicationTests {
         assertEquals("Агент009", tempFilm.getName());
         assertEquals("Бонд", tempFilm.getDescription());
 
-        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
-                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
+        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, duration=9879," +
+                        " genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]",
                 filmStorage.getFilms().toString());
     }
 
@@ -160,8 +160,8 @@ class FilmorateApplicationTests {
                 .mpa(mpaController.getRatingMpaById(5))
                 .build();
         filmController.create(film);
-        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
-                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
+        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-28, " +
+                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]",
                 String.valueOf(filmController.getFilms()));
     }
 
@@ -228,8 +228,9 @@ class FilmorateApplicationTests {
         Collection<User> users = userStorage.getUsers();
 
         System.out.println(user.toString());
-        assertEquals("[User(id=15, friends=[], email=vova@jd.ru, login=Vova, name=Вова, birthday=1959-06-19), " +
-                        "User(id=16, friends=[], email=vasya@jd.ru, login=Vasya, name=Вася, birthday=1959-06-19)]",
+        assertEquals("[User(id=15, friends=[], email=vova@jd.ru, login=Vova, name=Вова, " +
+                        "birthday=1959-06-19, likes=null), User(id=16, friends=[], email=vasya@jd.ru, login=Vasya, " +
+                        "name=Вася, birthday=1959-06-19, likes=null)]",
                 users.toString());
 
     }
