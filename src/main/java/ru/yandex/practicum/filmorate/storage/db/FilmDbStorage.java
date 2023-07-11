@@ -55,6 +55,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
+        getById(film.getId());
         String sqlQuery = "UPDATE films "
                 + "SET film_name = ?, "
                 + "description = ?, "
