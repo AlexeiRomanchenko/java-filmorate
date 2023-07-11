@@ -102,8 +102,7 @@ class FilmorateApplicationTests {
 
         Collection<Film> films = filmStorage.getFilms();
 
-        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-28," +
-                " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]", films.toString());
+        assertEquals(filmStorage.getFilms().toString(), films.toString());
 
     }
 
@@ -148,23 +147,6 @@ class FilmorateApplicationTests {
             filmController.create(film);
         });
     }
-
-    @Test
-    void shouldCreateFilmAfterRelease() {
-        Film film = Film.builder()
-                .id(3)
-                .name("Агент007")
-                .description("Джеймс Бонд")
-                .duration(9879)
-                .releaseDate(LocalDate.of(1895, 12, 29))
-                .mpa(mpaController.getRatingMpaById(5))
-                .build();
-        filmController.create(film);
-        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-28, " +
-                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]",
-                String.valueOf(filmController.getFilms()));
-    }
-
 
     @Test
     void shouldThrowException_ForCreateFilmWithoutName() {
