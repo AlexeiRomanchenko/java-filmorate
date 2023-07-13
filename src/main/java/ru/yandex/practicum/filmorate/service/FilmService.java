@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class FilmService {
@@ -85,4 +87,7 @@ public class FilmService {
         return result;
     }
 
+    public Collection<Film> getRecommendations(int id) {
+        return filmStorage.findRecommendations(id);
+    }
 }

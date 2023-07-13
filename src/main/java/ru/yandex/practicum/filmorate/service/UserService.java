@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
@@ -17,10 +19,12 @@ import java.util.List;
 public class UserService {
     private final UserStorage userStorage;
     private final EventService eventService;
+    private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage, EventService eventService) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
         this.eventService = eventService;
     }
 
@@ -87,6 +91,10 @@ public class UserService {
     private void checkUser(Integer userId, Integer friendId) {
         userStorage.getById(userId);
         userStorage.getById(friendId);
+    }
+
+    public Collection<Film> getRecommendations(int id) {
+        return filmStorage.findRecommendations(id);
     }
 
 }
