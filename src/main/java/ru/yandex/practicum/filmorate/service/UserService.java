@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import java.util.Collection;
 import java.util.List;
 
-@Slf4j
 @Service
 public class UserService {
     private final UserStorage userStorage;
@@ -44,14 +42,8 @@ public class UserService {
     }
 
     public void deleteUser(int id) {
-      //  log.info("!!!! " + userStorage.getById(id));
-
-        /*if (id < 0) {
-            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
-        }*/
-
+        ValidatorUser.validator(userStorage.getById(id));
         userStorage.delete(id);
-        //log.info("!!!! " + userStorage.getById(id));
     }
 
     public User findUser(int id) {
