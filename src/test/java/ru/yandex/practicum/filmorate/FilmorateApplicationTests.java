@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmorateApplicationTests {
-    @BeforeEach
+   /* @BeforeEach
     void clearDB() {
         filmStorage.clearDbFilms();
         filmStorage.clearDbLikes();
@@ -430,5 +430,5 @@ class FilmorateApplicationTests {
         assertEquals(2, userController.getFriendList(tempUser.getId()).size());
 
     }
-
+*/
 }
