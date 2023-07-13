@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
-
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 @Repository
 public class FilmDbStorage implements FilmStorage {
 
-
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${film.get-recommended-films-by-user}")
@@ -36,11 +34,10 @@ public class FilmDbStorage implements FilmStorage {
 
     public Collection<Film> getFilms() {
         String sqlQuery = "SELECT * FROM films "
-                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
-                + "LEFT JOIN film_genres ON film_genres.film_id = films.film_id "
-                + "LEFT JOIN genres ON genres.genre_id = film_genres.genre_id";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
-        return addGenreForList(films);
+                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id";
+        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        addGenreForList(filmList);
+        return filmList;
     }
 
     @Override
@@ -57,6 +54,7 @@ public class FilmDbStorage implements FilmStorage {
                 .getKeys();
         film.setId((Integer) keys.get("film_id"));
         addGenre((Integer) keys.get("film_id"), film.getGenres());
+        film.setGenres(getGenres(film.getId()));
         return film;
     }
 
@@ -78,9 +76,13 @@ public class FilmDbStorage implements FilmStorage {
         return getById(filmId);
     }
 
-    public String delete(int filmId) {
-        String sqlQuery = "DELETE FROM films WHERE film_id = ?";
-        return sqlQuery;
+    @Override
+    public void delete(int filmId) {
+        String sqlQuery = "DELETE FROM films WHERE film_id = " + filmId;
+        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
+        if (numberModifiedRows < 1) {
+            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
+        }
     }
 
     public Film getById(Integer filmId) {
@@ -150,7 +152,9 @@ public class FilmDbStorage implements FilmStorage {
                 + "ORDER BY COUNT (likes.film_id) DESC "
                 + "LIMIT "
                 + count;
-        return jdbcTemplate.query(sqlQuery, this::makeFilm);
+        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        addGenreForList(filmList);
+        return filmList;
     }
 
     private List<Film> addGenreForList(List<Film> films) {

@@ -15,7 +15,7 @@ public interface FilmStorage extends LikesStorage {
 
     Film update(Film film);
 
-    String delete(int id);
+    void delete(int filmId);
 
     Film getById(Integer id);
 

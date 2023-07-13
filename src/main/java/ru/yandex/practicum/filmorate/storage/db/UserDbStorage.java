@@ -78,10 +78,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public String delete(int userId) {
-        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sqlQuery, userId);
-        return sqlQuery;
+    public void delete(int userId) {
+        String sqlQuery = "DELETE FROM users WHERE user_id = " + userId;
+        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
+        if (numberModifiedRows < 1) {
+            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
+        }
     }
 
     public User getById(Integer userId) {
@@ -107,6 +109,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public List<User> getFriends(int userId) {
+        getById(userId);
         List<User> friends = new ArrayList<>();
         String sqlQuery = "SELECT * FROM users "
                 + "WHERE users.user_id IN (SELECT friend_id from friends "
