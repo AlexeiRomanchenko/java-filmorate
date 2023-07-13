@@ -10,6 +10,7 @@ public enum LogMessagesFilms {
     GET_FILM_BY_ID_REQUEST("Получен запрос на получение фильма с ID = "),
     CREATE_FILM_REQUEST("Получен запрос на создание фильма."),
     UPDATE_FILM_REQUEST("Получен запрос на обновление данных фильма."),
+    DELETE_FILM_REQUEST("Получен запрос на удаление фильма с ID = "),
     VALIDATION_FAILED("Ошибка валидации."),
     FILM_ADD("Добавлен фильм: "),
     DELETE_FILM("Фильм удален из базы."),
