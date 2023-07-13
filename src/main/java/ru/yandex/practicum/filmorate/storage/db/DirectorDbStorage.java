@@ -8,15 +8,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.description.LogDirector;
-import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.description.LogSQL;
 import ru.yandex.practicum.filmorate.exception.DirectorAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirecorStorage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -42,6 +42,8 @@ public class DirectorDbStorage implements DirecorStorage {
     private String requestResetPK;
     @Value("${director.update-director}")
     private String requestUpdateDirector;
+    @Value("${director.reset-all-data-table}")
+    private String requestClearTableDirectors;
 
     @Override
     public Director addDirector(Director director) {
@@ -62,13 +64,19 @@ public class DirectorDbStorage implements DirecorStorage {
     @Override
     public List<Director> getAllDirectors() {
         List<Director> directors = new ArrayList<>();
-        SqlRowSet idsRow = jdbcTemplate.queryForRowSet(requestAllIDs);
-        while (idsRow.next()) {
-            Integer id = idsRow.getInt("director_id");
-            directors.add(getDirectorById(id));
-        }
-        log.info(LogMessagesUsers.TRANSFER_LIST_ALL_USERS.getMessage());
+
+        String sqlQuery = "SELECT * FROM directors ";
+        directors.addAll(jdbcTemplate.query(sqlQuery, this::makeDirector));
+        log.info(LogDirector.TRANSFER_LIST_ALL_USERS.getMessage());
+
         return directors;
+
+    }
+
+    private Director makeDirector(ResultSet rs, int id) throws SQLException {
+        Integer directorId = rs.getInt("director_id");
+        String directorName = rs.getString("director_name");
+        return new Director(directorId, directorName);
     }
 
     @Override
@@ -117,11 +125,7 @@ public class DirectorDbStorage implements DirecorStorage {
                     + LogDirector.NO_FOUND_DIRECTOR.getMessage()
             );
         }
-
-        Director removedDirector = Director.builder()
-                .id(directorRow.getInt("director_id"))
-                .name(directorRow.getString("director_name"))
-                .build();
+        Director removedDirector = buildDirectorFromRow(directorRow);
         jdbcTemplate.execute(requestDeleteById + id);
         if (getAllDirectors().size() == 0) {
             jdbcTemplate.execute(requestResetPK);
@@ -133,13 +137,11 @@ public class DirectorDbStorage implements DirecorStorage {
 
     @Override
     public void deleteAllDirectors() {
+        String sqlRequest = requestClearTableDirectors;
+        jdbcTemplate.execute(sqlRequest);
 
-        SqlRowSet idsRow = jdbcTemplate.queryForRowSet(requestAllIDs);
-        while (idsRow.next()) {
-            jdbcTemplate.execute(requestDeleteById + idsRow.getInt("director_id"));
-        }
-        jdbcTemplate.execute(requestResetPK);
         log.info(LogDirector.TABLE_DIRECTOR_CLEAR.getMessage());
+
     }
 
     private Director buildDirectorFromRow(SqlRowSet row) {

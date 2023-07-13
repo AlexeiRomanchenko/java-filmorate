@@ -22,7 +22,8 @@ public enum LogDirector {
     EMPTY_LIST_FILMS_DIRECTOR("Пустой список фильмов режиссера "),
     TRANSFER_SORTED_LIST("Передан отсортированный по"),
     LIST_FILMS_DIRECTOR("список фильмов режиссера."),
-    DELETE_DIRECTOR("Удален режиссер");
+    DELETE_DIRECTOR("Удален режиссер"),
+    TRANSFER_LIST_ALL_USERS("Передан список всех пользователей");
 
     private final String message;
 

@@ -6,6 +6,7 @@ director:
   get-all-IDs: "SELECT director_id FROM directors"
   reset-primary-key: "ALTER TABLE directors ALTER COLUMN director_id RESTART WITH 1"
   update-director: "UPDATE directors SET director_name = ? WHERE director_id = ?"
+  reset-all-data-table: "TRUNCATE TABLE directors"
   get-filmsId-sorted-by-likes: "SELECT FILMS_DIRECTORS.film_id
     FROM FILMS_DIRECTORS
     LEFT JOIN likes ON FILMS_DIRECTORS.FILM_ID = likes.FILM_ID

@@ -43,6 +43,7 @@ public class FilmDbStorage implements FilmStorage {
             films.add(getById(filmsIdRow.getInt("film_id")));
         }
         films.sort(Comparator.comparingInt(Film::getId));
+
         return films;
     }
 
@@ -66,7 +67,7 @@ public class FilmDbStorage implements FilmStorage {
         return newFilm;
     }
 
-    private void addDirectors(int filmId, Set<Director> directors) {
+    private void addDirectors(int filmId, List<Director> directors) {
 
         deleteAllDirectorsByFilmId(filmId);
         if (directors == null || directors.isEmpty()) {
@@ -113,14 +114,15 @@ public class FilmDbStorage implements FilmStorage {
         return getById(filmId);
     }
 
-    private Set<Director> getDirectors(int filmId) {
-        Comparator<Director> compId = Comparator.comparing(Director::getId);
-        Set<Director> directors = new TreeSet<>(compId);
+    private List<Director> getDirectors(int filmId) {
 
         String sqlQuery = "SELECT films_directors.director_id, directors.director_name FROM films_directors "
                 + "JOIN directors ON directors.director_id = films_directors.director_id "
                 + "WHERE film_id = ? ORDER BY director_id ASC";
-        directors.addAll(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
+
+        List<Director> directors = new ArrayList<>
+                (jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
+
         return directors;
 
     }
@@ -237,6 +239,7 @@ public class FilmDbStorage implements FilmStorage {
         String mpaName = rs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = new HashSet<>();
+        List<Director> directors = new ArrayList<>();
         Film film = Film.builder()
                 .id(filmId)
                 .name(name)
@@ -245,6 +248,7 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genres)
                 .mpa(mpa)
                 .releaseDate(releaseDate)
+                .directors(directors)
                 .build();
         return film;
     }
@@ -260,7 +264,7 @@ public class FilmDbStorage implements FilmStorage {
         String mpaName = srs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
-        Set<Director> directors = getDirectors(id);
+        List<Director> directors = getDirectors(id);
         Film film = Film.builder()
                 .id(id)
                 .name(name)
