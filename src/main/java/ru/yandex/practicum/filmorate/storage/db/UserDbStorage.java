@@ -67,10 +67,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void delete(int userId) {
         String sqlQuery = "DELETE FROM users WHERE user_id = " + userId;
-        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
-        if (numberModifiedRows < 1) {
+       /* int numberModifiedRows = */jdbcTemplate.update(sqlQuery);
+        /*if (numberModifiedRows < 1) {
             throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
-        }
+        }*/
     }
 
     public User getById(Integer userId) {
