@@ -10,11 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Repository
 public class UserDbStorage implements UserStorage {
@@ -23,6 +19,23 @@ public class UserDbStorage implements UserStorage {
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private static User userMap(SqlRowSet srs) {
+        int id = srs.getInt("user_id");
+        String name = srs.getString("user_name");
+        String login = srs.getString("login");
+        String email = srs.getString("email");
+        LocalDate birthday = Objects.requireNonNull(srs.getTimestamp("birthday"))
+                .toLocalDateTime().toLocalDate();
+        User user = User.builder()
+                .id(id)
+                .name(name)
+                .login(login)
+                .email(email)
+                .birthday(birthday)
+                .build();
+        return user;
     }
 
     public Collection<User> getUsers() {
@@ -129,23 +142,6 @@ public class UserDbStorage implements UserStorage {
                 + "user_id = ? AND friends_id = ?";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
         return srs.next();
-    }
-
-    private static User userMap(SqlRowSet srs) {
-        int id = srs.getInt("user_id");
-        String name = srs.getString("user_name");
-        String login = srs.getString("login");
-        String email = srs.getString("email");
-        LocalDate birthday = Objects.requireNonNull(srs.getTimestamp("birthday"))
-                .toLocalDateTime().toLocalDate();
-        User user = User.builder()
-                .id(id)
-                .name(name)
-                .login(login)
-                .email(email)
-                .birthday(birthday)
-                .build();
-        return user;
     }
 
     public void clearDbUsers() {

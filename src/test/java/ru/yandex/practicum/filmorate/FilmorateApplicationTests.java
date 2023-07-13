@@ -1,108 +1,6 @@
-package ru.yandex.practicum.filmorate;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.MPAController;
-import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.db.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
-@AutoConfigureTestDatabase
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmorateApplicationTests {
-    @BeforeEach
-    void clearDB() {
-        filmStorage.clearDbFilms();
-        filmStorage.clearDbLikes();
-        userStorage.clearDbFriends();
-        userStorage.clearDbUsers();
-    }
-
-    private final FilmStorage filmStorage;
-    private final FilmController filmController;
-    private final UserController userController;
-    private final MPAController mpaController;
-    private final UserDbStorage userStorage;
-
-    User user = User.builder()
-            .id(1)
-            .name("Name")
-            .email("ivan@rjd.ru")
-            .login("Vanya")
-            .birthday(LocalDate.of(1990, 6, 11))
-            .build();
-    User user1 = User.builder()
-            .id(2)
-            .name("Name2")
-            .email("ivan2@rjd.ru")
-            .login("Vanya2")
-            .birthday(LocalDate.of(1995, 4, 14))
-            .build();
-    User user2 = User.builder()
-            .id(3)
-            .name("Name3")
-            .email("ivan3@rjd.ru")
-            .login("Vanya3")
-            .birthday(LocalDate.of(1993, 3, 3))
-            .build();
-
-    @Test
-    void shouldCreateNewFilm() {
-
-        Film film = Film.builder()
-                .id(2)
-                .name("Агент007")
-                .description("Джеймс Бонд")
-                .duration(9879)
-                .releaseDate(LocalDate.of(1895, 12, 29))
-                .mpa(mpaController.getRatingMpaById(5))
-                .build();
-
-        Film createFilm = filmStorage.create(film);
-
-        assertEquals(2, createFilm.getId());
-        assertEquals("Агент007", createFilm.getName());
-        assertEquals("Джеймс Бонд", createFilm.getDescription());
-        assertEquals(9879, createFilm.getDuration());
-
-        assertEquals(mpaController.getRatingMpaById(5).toString(), createFilm.getMpa().toString());
-
-    }
-
-    @Test
-    void shouldGetFilms() {
-        Film film = Film.builder()
-                .id(4)
-                .name("Агент007")
-                .description("Джеймс Бонд")
-                .duration(9879)
-                .releaseDate(LocalDate.of(1895, 12, 29))
-                .mpa(mpaController.getRatingMpaById(5))
-                .build();
-
-        filmStorage.create(film);
-
-        Collection<Film> films = filmStorage.getFilms();
-
-        assertEquals(filmStorage.getFilms().toString(), films.toString());
+        assertEquals("[Film(id=4, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29," +
+                " duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]", films.toString());
 
     }
 
@@ -127,8 +25,8 @@ class FilmorateApplicationTests {
         assertEquals("Агент009", tempFilm.getName());
         assertEquals("Бонд", tempFilm.getDescription());
 
-        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, duration=9879," +
-                        " genres=[], mpa=RatingMpa{id=5, name='NC-17'}, likes=[])]",
+        assertEquals("[Film(id=1, name=Агент009, description=Бонд, releaseDate=1895-12-29, " +
+                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
                 filmStorage.getFilms().toString());
     }
 
@@ -147,6 +45,23 @@ class FilmorateApplicationTests {
             filmController.create(film);
         });
     }
+
+    @Test
+    void shouldCreateFilmAfterRelease() {
+        Film film = Film.builder()
+                .id(3)
+                .name("Агент007")
+                .description("Джеймс Бонд")
+                .duration(9879)
+                .releaseDate(LocalDate.of(1895, 12, 29))
+                .mpa(mpaController.getRatingMpaById(5))
+                .build();
+        filmController.create(film);
+        assertEquals("[Film(id=3, name=Агент007, description=Джеймс Бонд, releaseDate=1895-12-29, " +
+                        "duration=9879, genres=[], mpa=RatingMpa{id=5, name='NC-17'})]",
+                String.valueOf(filmController.getFilms()));
+    }
+
 
     @Test
     void shouldThrowException_ForCreateFilmWithoutName() {
@@ -210,9 +125,8 @@ class FilmorateApplicationTests {
         Collection<User> users = userStorage.getUsers();
 
         System.out.println(user.toString());
-        assertEquals("[User(id=15, friends=[], email=vova@jd.ru, login=Vova, name=Вова, " +
-                        "birthday=1959-06-19, likes=null), User(id=16, friends=[], email=vasya@jd.ru, login=Vasya, " +
-                        "name=Вася, birthday=1959-06-19, likes=null)]",
+        assertEquals("[User(id=15, friends=[], email=vova@jd.ru, login=Vova, name=Вова, birthday=1959-06-19), " +
+                        "User(id=16, friends=[], email=vasya@jd.ru, login=Vasya, name=Вася, birthday=1959-06-19)]",
                 users.toString());
 
     }
