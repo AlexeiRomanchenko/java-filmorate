@@ -42,9 +42,7 @@ public class UserService {
     }
 
     public void deleteUser(int id) {
-        if (id < 1) {
-            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
-        }
+        ValidatorUser.validator(userStorage.getById(id));
         userStorage.delete(id);
     }
 

@@ -38,11 +38,9 @@ public class FilmService {
         return film;
     }
 
-    public void deleteFilm(int filmId) {
-        if (filmId < 1) {
-            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
-        }
-        filmStorage.delete(filmId);
+    public void deleteFilm(int id) {
+        ValidatorFilm.validator(filmStorage.getById(id));
+        filmStorage.delete(id);
     }
 
     public Collection<Film> getFilms() {
