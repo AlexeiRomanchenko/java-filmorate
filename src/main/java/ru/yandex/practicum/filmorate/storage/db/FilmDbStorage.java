@@ -43,12 +43,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Collection<Film> getFilms() {
-        String sqlQuery = "SELECT * FROM films "
-                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
-                + "LEFT JOIN film_genres ON film_genres.film_id = films.film_id "
-                + "LEFT JOIN genres ON genres.genre_id = film_genres.genre_id";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
-        return addGenreForList(films);
+        SqlRowSet filmsIdRow = jdbcTemplate.queryForRowSet("SELECT film_id FROM films");
+        List<Film> films = new ArrayList<>();
+        while (filmsIdRow.next()) {
+            films.add(getById(filmsIdRow.getInt("film_id")));
+        }
+        films.sort(Comparator.comparingInt(Film::getId));
+
+        return films;
     }
 
     @Override
