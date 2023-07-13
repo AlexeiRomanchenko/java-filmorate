@@ -126,8 +126,7 @@ public class FilmDbStorage implements FilmStorage {
                 + "JOIN directors ON directors.director_id = films_directors.director_id "
                 + "WHERE film_id = ? ORDER BY director_id ASC";
 
-        List<Director> directors = new ArrayList<>
-                (jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
 
         return directors;
 
