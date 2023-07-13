@@ -42,8 +42,6 @@ public class UserService {
     }
 
     public void deleteUser(int id) {
-        userStorage.getById(id);
-        ValidatorUser.validator(userStorage.getById(id));
         userStorage.delete(id);
     }
 
