@@ -31,7 +31,7 @@ public class ValidatorUser {
 
     protected static void validationFailed(User user) throws ValidationException {
         log.error(LogMessagesUsers.VALIDATION_FAILED.getMessage() + user.toString());
-        throw new  ObjectNotFoundException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
+        throw new ObjectNotFoundException(LogMessagesUsers.VALIDATION_FAILED.getMessage());
     }
 
 }

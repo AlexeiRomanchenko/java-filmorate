@@ -25,26 +25,30 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class FilmDbStorage implements FilmStorage {
+
+
     private final JdbcTemplate jdbcTemplate;
+
+    @Value("${film.get-recommended-films-by-user}")
+    private String requestGetRecommendedFilms;
+
+    @Value("${director.get-filmsId-sorted-by-likes}")
+    private String requestFilmIdByLikes;
+
+    @Value("${director.get-filmsId-sorted-by-year}")
+    private String requestFilmIdByYear;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Value("${director.get-filmsId-sorted-by-likes}")
-    private String requestFilmIdByLikes;
-    @Value("${director.get-filmsId-sorted-by-year}")
-    private String requestFilmIdByYear;
-
     public Collection<Film> getFilms() {
-        SqlRowSet filmsIdRow = jdbcTemplate.queryForRowSet("SELECT film_id FROM films");
-        List<Film> films = new ArrayList<>();
-        while (filmsIdRow.next()) {
-            films.add(getById(filmsIdRow.getInt("film_id")));
-        }
-        films.sort(Comparator.comparingInt(Film::getId));
-
-        return films;
+        String sqlQuery = "SELECT * FROM films "
+                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
+                + "LEFT JOIN film_genres ON film_genres.film_id = films.film_id "
+                + "LEFT JOIN genres ON genres.genre_id = film_genres.genre_id";
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        return addGenreForList(films);
     }
 
     @Override
@@ -309,4 +313,8 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> findRecommendations(Integer userId) {
+        return addGenreForList(jdbcTemplate.query(requestGetRecommendedFilms, this::makeFilm, userId, userId));
+    }
 }

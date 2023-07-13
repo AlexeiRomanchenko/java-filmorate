@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.description.EventType;
+import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.util.*;
 
@@ -15,11 +17,13 @@ import java.util.*;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage) {
+    public FilmService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public Film createFilm(Film film) {
@@ -55,8 +59,11 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         Film film = filmStorage.getById(filmId);
         if (film != null) {
+
             if (userStorage.getById(userId) != null) {
+
                 filmStorage.addLike(filmId, userId);
+                eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
             } else {
                 throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + userId);
             }
@@ -73,11 +80,16 @@ public class FilmService {
 
         filmStorage.removeLike(filmId, userId);
 
+        eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
         List<Film> result = new ArrayList<>(filmStorage.getPopular(count));
         return result;
+    }
+
+    public Collection<Film> getRecommendations(int id) {
+        return filmStorage.findRecommendations(id);
     }
 
     public List<Film> getListFilmsByIdDirectorWithSorted(int directorId, String sortBy) {
