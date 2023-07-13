@@ -49,6 +49,7 @@ public class UserService {
         /*if (id < 0) {
             throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
         }*/
+
         userStorage.delete(id);
         //log.info("!!!! " + userStorage.getById(id));
     }
