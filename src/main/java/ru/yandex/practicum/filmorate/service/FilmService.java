@@ -28,8 +28,7 @@ public class FilmService {
 
     public Film createFilm(Film film) {
         ValidatorFilm.validator(film);
-        filmStorage.create(film);
-        return film;
+        return filmStorage.create(film);
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
@@ -54,6 +53,11 @@ public class FilmService {
             ValidatorFilm.validationFailed(film);
 
         return film;
+    }
+
+    public void deleteFilm(int id) {
+        ValidatorFilm.validator(filmStorage.getById(id));
+        filmStorage.delete(id);
     }
 
     public Collection<Film> getFilms() {
