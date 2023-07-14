@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
-
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class FilmDbStorage implements FilmStorage {
 
@@ -33,17 +35,25 @@ public class FilmDbStorage implements FilmStorage {
     @Value("${film.get-recommended-films-by-user}")
     private String requestGetRecommendedFilms;
 
+    @Value("${director.get-filmsId-sorted-by-likes}")
+    private String requestFilmIdByLikes;
+
+    @Value("${director.get-filmsId-sorted-by-year}")
+    private String requestFilmIdByYear;
+
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Collection<Film> getFilms() {
-        String sqlQuery = "SELECT * FROM films "
-                + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
-                + "LEFT JOIN film_genres ON film_genres.film_id = films.film_id "
-                + "LEFT JOIN genres ON genres.genre_id = film_genres.genre_id";
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
-        return addGenreForList(films);
+        SqlRowSet filmsIdRow = jdbcTemplate.queryForRowSet("SELECT film_id FROM films");
+        List<Film> films = new ArrayList<>();
+        while (filmsIdRow.next()) {
+            films.add(getById(filmsIdRow.getInt("film_id")));
+        }
+        films.sort(Comparator.comparingInt(Film::getId));
+
+        return films;
     }
 
     @Override
@@ -52,7 +62,8 @@ public class FilmDbStorage implements FilmStorage {
                 .withTableName("films")
                 .usingColumns("film_name", "description", "duration", "release_date", "rating_id")
                 .usingGeneratedKeyColumns("film_id")
-                .executeAndReturnKeyHolder(Map.of("film_name", film.getName(),
+                .executeAndReturnKeyHolder(Map.of(
+                        "film_name", film.getName(),
                         "description", film.getDescription(),
                         "duration", film.getDuration(),
                         "release_date", java.sql.Date.valueOf(film.getReleaseDate()),
@@ -60,7 +71,36 @@ public class FilmDbStorage implements FilmStorage {
                 .getKeys();
         film.setId((Integer) keys.get("film_id"));
         addGenre((Integer) keys.get("film_id"), film.getGenres());
-        return film;
+        addDirectors((Integer) keys.get("film_id"), film.getDirectors());
+        Film newFilm = getById((Integer) keys.get("film_id"));
+        return newFilm;
+    }
+
+    private void addDirectors(int filmId, List<Director> directors) {
+
+        deleteAllDirectorsByFilmId(filmId);
+        if (directors == null || directors.isEmpty()) {
+            return;
+        }
+        List<Director> directorList = new ArrayList<>(directors);
+        jdbcTemplate.batchUpdate("INSERT INTO films_directors (film_id, director_id) VALUES(?,?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, filmId);
+                        ps.setInt(2, directorList.get(i).getId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return directorList.size();
+                    }
+                });
+    }
+
+    private void deleteAllDirectorsByFilmId(int filmId) {
+        String sglQuery = "DELETE FROM films_directors WHERE film_id = ?";
+        jdbcTemplate.update(sglQuery, filmId);
     }
 
     @Override
@@ -76,9 +116,29 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getDuration(),
                 film.getReleaseDate(), film.getMpa().getId(), film.getId());
         addGenre(film.getId(), film.getGenres());
+        addDirectors(film.getId(), film.getDirectors());
         int filmId = film.getId();
         film.setGenres(getGenres(filmId));
+        film.setDirectors(getDirectors(filmId));
         return getById(filmId);
+    }
+
+    private List<Director> getDirectors(int filmId) {
+
+        String sqlQuery = "SELECT films_directors.director_id, directors.director_name FROM films_directors "
+                + "JOIN directors ON directors.director_id = films_directors.director_id "
+                + "WHERE film_id = ? ORDER BY director_id ASC";
+
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
+
+        return directors;
+
+    }
+
+    private Director makeDirector(ResultSet rs, int id) throws SQLException {
+        Integer directorId = rs.getInt("director_id");
+        String directorName = rs.getString("director_name");
+        return new Director(directorId, directorName);
     }
 
     public String delete(int filmId) {
@@ -186,6 +246,7 @@ public class FilmDbStorage implements FilmStorage {
         int mpaId = rs.getInt("rating_id");
         String mpaName = rs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
+        List<Director> directors = new ArrayList<>();
         Set<Genre> genres = getGenres(filmId);
         Set<Integer> likes = getLikes(filmId);
         Film film = Film.builder()
@@ -196,6 +257,7 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genres)
                 .mpa(mpa)
                 .releaseDate(releaseDate)
+                .directors(directors)
                 .likes(likes)
                 .build();
         return film;
@@ -212,6 +274,7 @@ public class FilmDbStorage implements FilmStorage {
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
         Set<Integer> likes = getLikes(id);
+        List<Director> directors = getDirectors(id);
         Film film = Film.builder()
                 .id(id)
                 .name(name)
@@ -222,6 +285,7 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genres)
                 .releaseDate(releaseDate)
                 .likes(likes)
+                .directors(directors)
                 .build();
         return film;
     }
@@ -250,6 +314,27 @@ public class FilmDbStorage implements FilmStorage {
 
         System.out.println(list);
         return list;
+    }
+
+    @Override
+    public List<Film> getDirectorsFilms(int directorId, String sortBy) {
+        SqlRowSet filmIdRow;
+        if ("year".equals(sortBy)) {
+            filmIdRow = jdbcTemplate.queryForRowSet(requestFilmIdByYear, directorId);
+        } else {
+            filmIdRow = jdbcTemplate.queryForRowSet(requestFilmIdByLikes, directorId);
+        }
+        List<Film> films = new LinkedList<>();
+        while (filmIdRow.next()) {
+            films.add(getById(filmIdRow.getInt("film_id")));
+        }
+        if (films.size() == 0) {
+            log.info(LogDirector.EMPTY_LIST_FILMS_DIRECTOR.getMessage() + directorId);
+            throw new ObjectNotFoundException(LogDirector.EMPTY_LIST_FILMS_DIRECTOR.getMessage() + directorId);
+        }
+        log.info(LogDirector.TRANSFER_SORTED_LIST.getMessage() + sortBy
+                + LogDirector.LIST_FILMS_DIRECTOR.getMessage() + directorId + films);
+        return films;
     }
 
     @Override
