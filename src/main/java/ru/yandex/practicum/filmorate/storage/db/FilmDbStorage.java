@@ -149,6 +149,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
         }
     }
+    
     public Film getById(Integer filmId) {
         String sqlQuery = "SELECT * FROM films "
                 + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
