@@ -81,4 +81,5 @@ public class ReviewController {
         log.info(LogMessagesReviews.GET_REVIEWS_BY_FILM_REQUEST.getMessage());
         return reviewService.findAllByFilm(filmId, count);
     }
+
 }

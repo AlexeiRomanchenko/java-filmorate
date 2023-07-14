@@ -11,9 +11,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FilmService {
@@ -78,7 +76,9 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         Film film = filmStorage.getById(filmId);
         if (film != null) {
+
             if (userStorage.getById(userId) != null) {
+
                 filmStorage.addLike(filmId, userId);
                 eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
             } else {
@@ -96,6 +96,7 @@ public class FilmService {
         }
 
         filmStorage.removeLike(filmId, userId);
+
         eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
@@ -107,4 +108,9 @@ public class FilmService {
     public Collection<Film> getRecommendations(int id) {
         return filmStorage.findRecommendations(id);
     }
+
+    public List<Film> getListFilmsByIdDirectorWithSorted(int directorId, String sortBy) {
+        return filmStorage.getDirectorsFilms(directorId, sortBy);
+    }
+
 }
