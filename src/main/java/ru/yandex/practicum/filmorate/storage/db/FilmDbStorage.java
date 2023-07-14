@@ -237,8 +237,6 @@ public class FilmDbStorage implements FilmStorage {
                 + "ORDER BY COUNT (likes.film_id) DESC "
                 + "LIMIT "
                 + count;
-       /* List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
-        return addGenreForList(films);*/
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::makeFilm);
         addGenreForList(filmList);
         return filmList;
