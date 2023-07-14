@@ -40,6 +40,7 @@ public class DirectorDbStorage implements DirecorStorage {
     private String requestUpdateDirector;
     @Value("${director.reset-all-data-table}")
     private String requestClearTableDirectors;
+
     public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
