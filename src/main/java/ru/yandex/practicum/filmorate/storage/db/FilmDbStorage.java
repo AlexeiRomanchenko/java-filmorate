@@ -141,11 +141,14 @@ public class FilmDbStorage implements FilmStorage {
         return new Director(directorId, directorName);
     }
 
-    public String delete(int filmId) {
-        String sqlQuery = "DELETE FROM films WHERE film_id = ?";
-        return sqlQuery;
+    @Override
+    public void delete(int filmId) {
+        String sqlQuery = "DELETE FROM films WHERE film_id = " + filmId;
+        int numberModifiedRows = jdbcTemplate.update(sqlQuery);
+        if (numberModifiedRows < 1) {
+            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
+        }
     }
-
     public Film getById(Integer filmId) {
         String sqlQuery = "SELECT * FROM films "
                 + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
