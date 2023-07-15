@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
+import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -84,13 +86,11 @@ public class UserService {
     }
 
     public List<User> getListFriendsUserById(int id) {
-        List<User> userFriends = userStorage.getFriends(id);
-        return userFriends;
+        return userStorage.getFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        List<User> commonFriends = userStorage.getCommonFriends(id, otherId);
-        return commonFriends;
+        return userStorage.getCommonFriends(id, otherId);
     }
 
     private void checkUser(Integer userId, Integer friendId) {

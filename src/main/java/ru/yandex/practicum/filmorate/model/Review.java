@@ -14,13 +14,13 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
+    private final Map<Integer, Boolean> grades = new HashMap<>();
     @Positive
     private Integer reviewId;
     private String content;
     private Boolean isPositive;
     private Integer userId;
     private Integer filmId;
-    private final Map<Integer, Boolean> grades = new HashMap<>();
 
     public int getUseful() {
         return grades.values().stream().mapToInt(positive -> positive ? 1 : -1).sum();

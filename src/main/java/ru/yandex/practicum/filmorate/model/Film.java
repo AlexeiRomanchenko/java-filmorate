@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)

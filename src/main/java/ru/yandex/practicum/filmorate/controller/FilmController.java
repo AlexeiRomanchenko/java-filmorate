@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
@@ -10,11 +11,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final FilmService filmService;
 
@@ -89,6 +92,12 @@ public class FilmController {
         log.info(LogDirector.GET_ALL_FILMS_BY_DIRECTOR_REQUEST.getMessage() + directorId
                 + LogDirector.SORTED_BY + sortBy);
         return filmService.getListFilmsByIdDirectorWithSorted(directorId, sortBy);
+    }
+
+    @GetMapping("/search")  //GET /films/search?query=крад&by=director,title
+    public Collection<Film> getSearchedFilms(@RequestParam @NotBlank String query, @RequestParam(defaultValue = "title") String by) {
+        log.info(String.format(LogMessagesFilms.SEARCH_FOR_FILM.getMessage(), query, by));
+        return filmService.getSearchedFilms(query, by);
     }
 
 }

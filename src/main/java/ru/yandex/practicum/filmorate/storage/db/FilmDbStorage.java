@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -28,19 +29,19 @@ import java.util.stream.Collectors;
 public class FilmDbStorage implements FilmStorage {
 
 
+    public static final String TITLE_COLUMN = "UPPER(f.film_name)";
+    public static final String DIRECTOR_COLUMN = "UPPER(d.director_name)";
     private final JdbcTemplate jdbcTemplate;
-
     @Value("${film.requestCommonFilmForTwoUsers}")
     private String requestCommonFilmForTwoUsers;
-
     @Value("${film.get-recommended-films-by-user}")
     private String requestGetRecommendedFilms;
-
     @Value("${director.get-filmsId-sorted-by-likes}")
     private String requestFilmIdByLikes;
-
     @Value("${director.get-filmsId-sorted-by-year}")
     private String requestFilmIdByYear;
+    @Value("${film.search-for-films}")
+    private String requestSearchForFilm;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -130,14 +131,12 @@ public class FilmDbStorage implements FilmStorage {
                 + "JOIN directors ON directors.director_id = films_directors.director_id "
                 + "WHERE film_id = ? ORDER BY director_id ASC";
 
-        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
-
-        return directors;
+        return new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
 
     }
 
     private Director makeDirector(ResultSet rs, int id) throws SQLException {
-        Integer directorId = rs.getInt("director_id");
+        int directorId = rs.getInt("director_id");
         String directorName = rs.getString("director_name");
         return new Director(directorId, directorName);
     }
@@ -205,7 +204,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void removeLike(int filmId, int userId) {
-        String sqlQuery = "DELETE likes "
+        String sqlQuery = "DELETE FROM likes "
                 + "WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
     }
@@ -275,7 +274,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Director> directors = new ArrayList<>();
         Set<Genre> genres = getGenres(filmId);
         Set<Integer> likes = getLikes(filmId);
-        Film film = Film.builder()
+        return Film.builder()
                 .id(filmId)
                 .name(name)
                 .description(description)
@@ -286,7 +285,6 @@ public class FilmDbStorage implements FilmStorage {
                 .directors(directors)
                 .likes(likes)
                 .build();
-        return film;
     }
 
     private Film filmMap(SqlRowSet srs) {
@@ -301,7 +299,7 @@ public class FilmDbStorage implements FilmStorage {
         Set<Genre> genres = getGenres(id);
         Set<Integer> likes = getLikes(id);
         List<Director> directors = getDirectors(id);
-        Film film = Film.builder()
+        return Film.builder()
                 .id(id)
                 .name(name)
                 .description(description)
@@ -313,7 +311,6 @@ public class FilmDbStorage implements FilmStorage {
                 .likes(likes)
                 .directors(directors)
                 .build();
-        return film;
     }
 
     public void clearDbFilms() {
@@ -329,8 +326,7 @@ public class FilmDbStorage implements FilmStorage {
     private Set<Integer> getLikes(int filmId) {
         String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
         List<Integer> foundFilmLikes = jdbcTemplate.queryForList(sqlQuery, Integer.class, filmId);
-        Set<Integer> likes = new HashSet<>(foundFilmLikes);
-        return likes;
+        return new HashSet<>(foundFilmLikes);
     }
 
     @Override
@@ -366,5 +362,28 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findRecommendations(Integer userId) {
         return addGenreForList(jdbcTemplate.query(requestGetRecommendedFilms, this::makeFilm, userId, userId));
+    }
+
+    @Override
+    public Collection<Film> findSearchedFilm(String query, List<String> searchParams) {
+        List<String> queryList = new ArrayList<>(
+                Collections.nCopies(searchParams.size(),
+                        "%" + query.toUpperCase() + "%"));
+        searchParams.replaceAll(param -> {
+            switch (param) {
+                case "title":
+                    return TITLE_COLUMN;
+                case "director":
+                    return DIRECTOR_COLUMN;
+                default:
+                    throw new BadRequestException("Invalid search parameter");
+            }
+        });
+        String sql = String.format(requestSearchForFilm,
+                String.join(" LIKE ? OR ", searchParams));
+        return jdbcTemplate.query(sql,
+                        this::makeFilm, queryList.toArray())
+                .stream().peek(f -> f.setDirectors(getDirectors(f.getId())))
+                .collect(Collectors.toList());
     }
 }

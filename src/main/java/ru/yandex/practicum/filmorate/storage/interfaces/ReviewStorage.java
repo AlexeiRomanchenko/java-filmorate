@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
+import ru.yandex.practicum.filmorate.model.Review;
+
 import java.util.List;
 import java.util.Optional;
-
-import ru.yandex.practicum.filmorate.model.Review;
 
 public interface ReviewStorage {
     Optional<Review> findById(Integer id);

@@ -16,18 +16,14 @@ import ru.yandex.practicum.filmorate.storage.interfaces.DirecorStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Slf4j
 public class DirectorDbStorage implements DirecorStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     @Value("${director.get-id-by-director}")
     private String requestGetIdByDirector;
     @Value("${director.insert-director}")
@@ -44,6 +40,10 @@ public class DirectorDbStorage implements DirecorStorage {
     private String requestUpdateDirector;
     @Value("${director.reset-all-data-table}")
     private String requestClearTableDirectors;
+
+    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Director addDirector(Director director) {
@@ -63,10 +63,9 @@ public class DirectorDbStorage implements DirecorStorage {
 
     @Override
     public List<Director> getAllDirectors() {
-        List<Director> directors = new ArrayList<>();
 
         String sqlQuery = "SELECT * FROM directors ";
-        directors.addAll(jdbcTemplate.query(sqlQuery, this::makeDirector));
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector));
         log.info(LogDirector.TRANSFER_LIST_ALL_USERS.getMessage());
 
         return directors;
@@ -74,7 +73,7 @@ public class DirectorDbStorage implements DirecorStorage {
     }
 
     private Director makeDirector(ResultSet rs, int id) throws SQLException {
-        Integer directorId = rs.getInt("director_id");
+        int directorId = rs.getInt("director_id");
         String directorName = rs.getString("director_name");
         return new Director(directorId, directorName);
     }
@@ -164,8 +163,7 @@ public class DirectorDbStorage implements DirecorStorage {
     }
 
     private SqlRowSet getIdRowsFromDB(Director director) {
-        SqlRowSet rows = jdbcTemplate.queryForRowSet(requestGetIdByDirector, director.getName());
-        return rows;
+        return jdbcTemplate.queryForRowSet(requestGetIdByDirector, director.getName());
     }
 
 }

@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
+import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -85,7 +87,7 @@ public class ReviewService {
         Review review = reviewStorage.findById(id).orElseThrow(() -> {
             String message = "Отзыв не найден";
             log.warn(message);
-            throw new ObjectNotFoundException(message);
+            return new ObjectNotFoundException(message);
         });
         reviewStorage.loadGrades(review);
         return review;

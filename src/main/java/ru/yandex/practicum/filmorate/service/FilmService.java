@@ -2,16 +2,20 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
+import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
-import ru.yandex.practicum.filmorate.description.EventType;
-import ru.yandex.practicum.filmorate.description.Operation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -34,8 +38,7 @@ public class FilmService {
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         checkUserId(userId);
         checkUserId(friendId);
-        List<Film> films = new ArrayList<>(filmStorage.getCommonFilms(userId, friendId));
-        return films;
+        return new ArrayList<>(filmStorage.getCommonFilms(userId, friendId));
     }
 
     private void checkUserId(Integer id) {
@@ -103,7 +106,6 @@ public class FilmService {
     public Collection<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {
         List<Film> result = new ArrayList<>(filmStorage.getSortedPopularFilms(count, genreId, releaseYear));
         return result;
-
     }
 
     public Collection<Film> getRecommendations(int id) {
@@ -114,4 +116,10 @@ public class FilmService {
         return filmStorage.getDirectorsFilms(directorId, sortBy);
     }
 
+    public Collection<Film> getSearchedFilms(String query, String by) {
+        List<String> target = new ArrayList<>(List.of("title", "director"));
+        List<String> searchParams = Arrays.stream(by.split(",")).map(String::trim).collect(Collectors.toList());
+        target.retainAll(searchParams);
+        return filmStorage.findSearchedFilm(query, target);
+    }
 }

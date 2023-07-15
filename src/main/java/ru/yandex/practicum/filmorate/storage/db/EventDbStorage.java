@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

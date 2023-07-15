@@ -14,8 +14,8 @@ import java.util.*;
 
 @Repository
 public class UserDbStorage implements UserStorage {
-    private final JdbcTemplate jdbcTemplate;
     private static final String GET_USER_ID = "SELECT user_id FROM users WHERE user_id=?";
+    private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -28,14 +28,13 @@ public class UserDbStorage implements UserStorage {
         String email = srs.getString("email");
         LocalDate birthday = Objects.requireNonNull(srs.getTimestamp("birthday"))
                 .toLocalDateTime().toLocalDate();
-        User user = User.builder()
+        return User.builder()
                 .id(id)
                 .name(name)
                 .login(login)
                 .email(email)
                 .birthday(birthday)
                 .build();
-        return user;
     }
 
     public Collection<User> getUsers() {
@@ -109,7 +108,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public void removeFriend(int userId, int friendId) {
-        String sqlQuery = "DELETE friends "
+        String sqlQuery = "DELETE FROM friends "
                 + "WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
@@ -142,7 +141,7 @@ public class UserDbStorage implements UserStorage {
 
     public boolean isFriend(int userId, int friendId) {
         String sqlQuery = "SELECT * FROM friends WHERE "
-                + "user_id = ? AND friends_id = ?";
+                + "user_id = ? AND friend_id = ?";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
         return srs.next();
     }

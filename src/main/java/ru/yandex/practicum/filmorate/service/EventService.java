@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 
 import java.time.Instant;
 import java.util.List;

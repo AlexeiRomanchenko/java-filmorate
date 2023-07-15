@@ -19,7 +19,8 @@ public enum LogMessagesFilms {
     FILM_DATA_UPDATED("Данные фильма обновлены: "),
     FILM_NO_FOUND_WITH_ID("Фильма с таким id нет."),
     GET_COMMON_FILMS_FOR_USERS_WITH_ID("Получение общих фильмов для пользователей с id = "),
-    FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: ");
+    FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: "),
+    SEARCH_FOR_FILM("Получен запрос на поиск фильма содержащем: \"%s\" в параметрах: \"%s\"");
 
     private final String message;
 
