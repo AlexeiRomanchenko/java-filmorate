@@ -239,7 +239,9 @@ public class FilmDbStorage implements FilmStorage {
                 + count;
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::makeFilm);
         addGenreForList(filmList);
-        return filmList;
+        return filmList
+                .stream().peek(f -> f.setDirectors(getDirectors(f.getId())))
+                .collect(Collectors.toList());
     }
 
     private List<Film> addGenreForList(List<Film> films) {
