@@ -100,9 +100,10 @@ public class FilmService {
         eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        List<Film> result = new ArrayList<>(filmStorage.getPopular(count));
+    public Collection<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {
+        List<Film> result = new ArrayList<>(filmStorage.getSortedPopularFilms(count, genreId, releaseYear));
         return result;
+
     }
 
     public Collection<Film> getRecommendations(int id) {
