@@ -209,15 +209,36 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
     }
 
-    public List<Film> getPopular(Integer count) {
+    @Override
+    public List<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {
+        String sqlRequirement;
+        if (genreId != 0 && releaseYear != 0) {
+            sqlRequirement = "LEFT JOIN film_genres ON films.film_id = film_genres.film_id "
+                    + "WHERE film_genres.genre_id = " + genreId
+                    + " AND EXTRACT(YEAR FROM films.release_date) = " + releaseYear + " ";
+
+        } else if (genreId != 0) {
+            sqlRequirement = "LEFT JOIN film_genres ON films.film_id = film_genres.film_id "
+                    + "WHERE film_genres.genre_id = " + genreId + " ";
+
+        } else if (releaseYear != 0) {
+            sqlRequirement = "WHERE EXTRACT(YEAR FROM films.release_date) = " + releaseYear + " ";
+
+        } else {
+            sqlRequirement = "";
+        }
+
         String sqlQuery = "SELECT * FROM films "
                 + "LEFT JOIN likes ON likes.film_id = films.film_id "
                 + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
+                + sqlRequirement
                 + "GROUP BY films.film_id, likes.user_id "
                 + "ORDER BY COUNT (likes.film_id) DESC "
                 + "LIMIT "
                 + count;
-        return jdbcTemplate.query(sqlQuery, this::makeFilm);
+        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        addGenreForList(filmList);
+        return filmList;
     }
 
     private List<Film> addGenreForList(List<Film> films) {
