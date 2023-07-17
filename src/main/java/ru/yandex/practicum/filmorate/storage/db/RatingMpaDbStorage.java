@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
@@ -9,12 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class RatingMpaDbStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public RatingMpaDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public RatingMpa getRatingMpaById(int ratingId) {
         String sqlQuery = "SELECT * FROM rating_mpa WHERE rating_id = ?";

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
@@ -19,8 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
@@ -33,7 +34,7 @@ public class ReviewService {
         this.eventStorage = eventStorage;
     }
 
-    public Review create(Review review) {
+  public Review create(Review review) {
         validationBeforeCreate(review);
         Review newData = reviewStorage.create(review);
         eventStorage.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getReviewId());
