@@ -35,12 +35,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sqlUseful = "SELECT * FROM REVIEW_USEFUL WHERE  REVIEW_ID = ?";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlUseful, review.getReviewId());
         while (sqlRowSet.next()) {
-            Integer gradeInt = review.getUseful();
-            if (gradeInt == null) {
-                gradeInt = 0;
-            }
-            gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
-            review.setUseful(gradeInt);
+            review.setUseful(review.getUseful() + getGrade(sqlRowSet.getBoolean("GRADE")));
         }
         return Optional.of(review);
     }
@@ -53,6 +48,7 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setIsPositive(resultSet.getBoolean("IS_POSITIVE"));
         review.setUserId(resultSet.getInt("USER_ID"));
         review.setFilmId(resultSet.getInt("FILM_ID"));
+        review.setUseful(0);
         return review;
     }
 
@@ -69,12 +65,7 @@ public class ReviewDbStorage implements ReviewStorage {
         while (sqlRowSet.next()) {
             Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
             if (review != null) {
-                Integer gradeInt = review.getUseful();
-                if (gradeInt == null) {
-                    gradeInt = 0;
-                }
-                gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
-                review.setUseful(gradeInt);
+                review.setUseful(review.getUseful() + getGrade(sqlRowSet.getBoolean("GRADE")));
             }
         }
 
@@ -95,12 +86,7 @@ public class ReviewDbStorage implements ReviewStorage {
         while (sqlRowSet.next()) {
             Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
             if (review != null) {
-                Integer gradeInt = review.getUseful();
-                if (gradeInt == null) {
-                    gradeInt = 0;
-                }
-                gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
-                review.setUseful(gradeInt);
+                review.setUseful(review.getUseful() + getGrade(sqlRowSet.getBoolean("GRADE")));
             }
         }
         return reviews;
