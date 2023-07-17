@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,27 +43,21 @@ public class UserService {
 
     public User update(User user) {
         ValidatorUser.validator(user);
-
-        if (userStorage.getById(user.getId()) != null) {
-            userStorage.update(user);
-        } else
-            ValidatorUser.validationFailed(user);
-
+        userStorage.getById(user.getId()).ifPresentOrElse(
+                u -> userStorage.update(user),
+                () -> ValidatorUser.validationFailed(user));
         return user;
     }
 
     public void deleteUser(int id) {
-        ValidatorUser.validator(userStorage.getById(id));
+        ValidatorUser.validator(userStorage.getById(id).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage())));
         userStorage.delete(id);
     }
 
     public User findUser(int id) {
-        User user = userStorage.getById(id);
-        if (user == null) {
-            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
-        }
-
-        return user;
+        return userStorage.getById(id).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage()));
     }
 
     public void addToFriendList(int id, int friendId) {

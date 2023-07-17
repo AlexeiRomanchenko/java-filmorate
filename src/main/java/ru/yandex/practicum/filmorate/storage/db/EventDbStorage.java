@@ -7,10 +7,9 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.db.mapper.EventMapper;
 import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -35,27 +34,13 @@ public class EventDbStorage implements EventStorage {
                         "operation", operation.getOperation(),
                         "entity_id", entityId))
                 .getKeys();
+        assert keys != null;
         event.setEventId((Integer) keys.get("event_id"));
     }
 
     @Override
     public List<Event> findEventsByUserID(Integer id) {
         String sql = "SELECT * FROM EVENTS WHERE USER_ID = ?";
-
-        return jdbcTemplate.query(sql, this::mapToEvent, id);
-    }
-
-    private Event mapToEvent(ResultSet resultSet, int rowNum) throws SQLException {
-        Event event = new Event();
-        event.setEventId(resultSet.getInt("EVENT_ID"));
-        event.setTimestamp(resultSet.getLong("EVENT_TIMESTAMP"));
-        EventType eventType = EventType.valueOf(resultSet.getString("EVENT_TYPE"));
-        event.setEventType(eventType);
-        Operation operation = Operation.valueOf(resultSet.getString("OPERATION"));
-        event.setOperation(operation);
-        event.setUserId(resultSet.getInt("USER_ID"));
-        event.setEntityId(resultSet.getInt("ENTITY_ID"));
-
-        return event;
+        return jdbcTemplate.query(sql, EventMapper::mapToEvent, id);
     }
 }

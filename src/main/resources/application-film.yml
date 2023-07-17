@@ -1,4 +1,8 @@
 film:
+  requestAllFilms: "SELECT f.*, mpa.rating_name 
+                    FROM films f 
+                    LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id 
+                    ORDER BY film_id"
   requestCommonFilmForTwoUsers: "SELECT * FROM films 
                                 JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id
                                 WHERE film_id IN

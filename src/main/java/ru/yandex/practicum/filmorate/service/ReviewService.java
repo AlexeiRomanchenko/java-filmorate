@@ -5,14 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
+import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.description.Operation;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.Comparator;
@@ -78,12 +79,11 @@ public class ReviewService {
     }
 
     public Review findById(Integer id) {
-        Review review = reviewStorage.findById(id).orElseThrow(() -> {
+        return reviewStorage.findById(id).orElseThrow(() -> {
             String message = "Отзыв не найден";
             log.warn(message);
             return new ObjectNotFoundException(message);
         });
-        return review;
     }
 
     public void validationBeforeCreate(Review review) {
@@ -104,14 +104,16 @@ public class ReviewService {
 
     public void delLike(Integer id, Integer userId) {
         Review review = this.findById(id);
-        User user = userStorage.getById(userId);
+        User user = userStorage.getById(userId).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID + userId.toString()));
         validateForGrade(review, user);
         reviewStorage.delGrade(id, userId);
     }
 
     private void addGrade(Integer id, Integer userId, boolean positive) {
         Review review = this.findById(id);
-        User user = userStorage.getById(userId);
+        User user = userStorage.getById(userId).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID + userId.toString()));
         validateForGrade(review, user);
         reviewStorage.saveGrades(review, reviewStorage.addGrade(id, userId, positive));
     }

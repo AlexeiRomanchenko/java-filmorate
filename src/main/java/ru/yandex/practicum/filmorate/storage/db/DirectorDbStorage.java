@@ -13,17 +13,20 @@ import ru.yandex.practicum.filmorate.description.LogSQL;
 import ru.yandex.practicum.filmorate.exception.DirectorAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.interfaces.DirecorStorage;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.db.mapper.DirectorMapper;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.storage.db.mapper.DirectorMapper.buildDirectorFromRow;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DirectorDbStorage implements DirecorStorage {
+public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
     @Value("${director.get-id-by-director}")
@@ -42,6 +45,8 @@ public class DirectorDbStorage implements DirecorStorage {
     private String requestUpdateDirector;
     @Value("${director.reset-all-data-table}")
     private String requestClearTableDirectors;
+    @Value("${director.load-all-directors-for-films}")
+    private String requestToLoadAllDirectors;
 
     @Override
     public Director addDirector(Director director) {
@@ -63,17 +68,10 @@ public class DirectorDbStorage implements DirecorStorage {
     public List<Director> getAllDirectors() {
 
         String sqlQuery = "SELECT * FROM directors ";
-        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector));
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, DirectorMapper::makeDirector));
         log.info(LogDirector.TRANSFER_LIST_ALL_USERS.getMessage());
 
         return directors;
-
-    }
-
-    private Director makeDirector(ResultSet rs, int id) throws SQLException {
-        int directorId = rs.getInt("director_id");
-        String directorName = rs.getString("director_name");
-        return new Director(directorId, directorName);
     }
 
     @Override
@@ -129,7 +127,6 @@ public class DirectorDbStorage implements DirecorStorage {
         }
         log.info(LogDirector.DELETE_DIRECTOR.getMessage() + removedDirector);
         return removedDirector;
-
     }
 
     @Override
@@ -141,11 +138,21 @@ public class DirectorDbStorage implements DirecorStorage {
 
     }
 
-    private Director buildDirectorFromRow(SqlRowSet row) {
-        return Director.builder()
-                .name(row.getString("director_name"))
-                .id(row.getInt("director_id"))
-                .build();
+    @Override
+    public Collection<Film> loadAllDirectors(Collection<Film> films) {
+        Map<Integer, Film> filmsMap = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
+        String inSql = String.join(", ", Collections.nCopies(filmsMap.size(), "?"));
+        String sql = String.format(requestToLoadAllDirectors, inSql);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, filmsMap.keySet().toArray());
+
+        while (sqlRowSet.next()) {
+            Film film = filmsMap.get(sqlRowSet.getInt("film_id"));
+            if (film != null) {
+                film.addDirector(new Director(sqlRowSet.getInt("director_id"),
+                        sqlRowSet.getString("director_name")));
+            }
+        }
+        return films;
     }
 
     private boolean isPresentInDB(Director director) {

@@ -7,15 +7,23 @@ director:
   reset-primary-key: "ALTER TABLE directors ALTER COLUMN director_id RESTART WITH 1"
   update-director: "UPDATE directors SET director_name = ? WHERE director_id = ?"
   reset-all-data-table: "TRUNCATE TABLE directors"
-  get-filmsId-sorted-by-likes: "SELECT FILMS_DIRECTORS.film_id
-    FROM FILMS_DIRECTORS
-    LEFT JOIN likes ON FILMS_DIRECTORS.FILM_ID = likes.FILM_ID
-    GROUP BY FILMS_DIRECTORS.FILM_ID
-    HAVING FILMS_DIRECTORS.DIRECTOR_ID = ?
+  get-filmsId-sorted-by-likes: "SELECT f.*, mpa.rating_name
+    FROM films f
+    JOIN FILMS_DIRECTORS fd ON f.film_id = fd.film_id
+    LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id
+    LEFT JOIN likes ON fd.FILM_ID = likes.FILM_ID
+    GROUP BY fd.FILM_ID
+    HAVING fd.DIRECTOR_ID = ?
     ORDER BY COUNT(likes.USER_ID) DESC;"
-  get-filmsId-sorted-by-year: "SELECT films.film_id
-    FROM films
-    INNER JOIN FILMS_DIRECTORS ON FILMS_DIRECTORS.FILM_ID  = films.FILM_ID
-    GROUP BY films.FILM_ID
+  get-filmsId-sorted-by-year: "SELECT f.*, mpa.rating_name
+    FROM films f
+    LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id
+    INNER JOIN FILMS_DIRECTORS ON FILMS_DIRECTORS.FILM_ID  = f.FILM_ID
+    GROUP BY f.FILM_ID
     HAVING FILMS_DIRECTORS.DIRECTOR_ID = ?
-    ORDER BY films.RELEASE_DATE;"
+    ORDER BY f.RELEASE_DATE;"
+  load-all-directors-for-films: "SELECT * 
+                                  FROM films_directors fd 
+                                  JOIN directors d ON fd.director_id = d.director_id 
+                                  WHERE film_id IN (%s) 
+                                  ORDER BY fd.film_id, fd.director_id ASC"
