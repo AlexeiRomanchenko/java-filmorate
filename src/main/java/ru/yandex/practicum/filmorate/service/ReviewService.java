@@ -104,7 +104,7 @@ public class ReviewService {
 
     public void delLike(Integer id, Integer userId) {
         Review review = this.findById(id);
-        User user = userStorage.getById(userId).orElseThrow(()->
+        User user = userStorage.getById(userId).orElseThrow(() ->
                 new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID + userId.toString()));
         validateForGrade(review, user);
         reviewStorage.delGrade(id, userId);
@@ -112,7 +112,7 @@ public class ReviewService {
 
     private void addGrade(Integer id, Integer userId, boolean positive) {
         Review review = this.findById(id);
-        User user = userStorage.getById(userId).orElseThrow(()->
+        User user = userStorage.getById(userId).orElseThrow(() ->
                 new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID + userId.toString()));
         validateForGrade(review, user);
         reviewStorage.saveGrades(review, reviewStorage.addGrade(id, userId, positive));
