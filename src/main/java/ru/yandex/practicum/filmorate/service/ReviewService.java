@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
@@ -12,26 +12,18 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
-import ru.yandex.practicum.filmorate.description.EventType;
-import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserService userService;
     private final EventService eventService;
-
-    @Autowired
-    public ReviewService(ReviewStorage reviewStorage, UserService userService, EventService eventService) {
-        this.reviewStorage = reviewStorage;
-        this.userService = userService;
-        this.eventService = eventService;
-    }
 
     public Review create(Review review) {
         validationBeforeCreate(review);

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -39,10 +41,6 @@ public class FilmDbStorage implements FilmStorage {
     private String requestFilmIdByYear;
     @Value("${film.search-for-films}")
     private String requestSearchForFilm;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Collection<Film> getFilms() {
         SqlRowSet filmsIdRow = jdbcTemplate.queryForRowSet("SELECT film_id FROM films");

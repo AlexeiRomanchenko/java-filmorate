@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -15,17 +15,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final EventService eventService;
-
-    @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-        this.eventService = eventService;
-    }
 
     public Film createFilm(Film film) {
         ValidatorFilm.validator(film);
@@ -78,8 +72,8 @@ public class FilmService {
         if (film != null) {
             checkUserId(userId);
 
-                filmStorage.addLike(filmId, userId);
-                eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+            filmStorage.addLike(filmId, userId);
+            eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
 
         } else {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
