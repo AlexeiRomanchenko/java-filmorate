@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.description.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
     private final GenreStorage genreStorage;
     private final DirectorStorage directorStorage;
 
@@ -78,7 +79,7 @@ public class FilmService {
                 f -> {
                     checkUserId(userId);
                     filmStorage.addLike(filmId, userId);
-                    eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+                    eventStorage.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
                 },
                 () -> {
                     throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
@@ -90,8 +91,10 @@ public class FilmService {
         if (filmStorage.removeLike(filmId, userId) == 0) {
             throw new ObjectNotFoundException(userId + "not found");
         }
-        log.debug("DEleted from staroge");
-        eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
+
+        filmStorage.removeLike(filmId, userId);
+
+        eventStorage.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public Collection<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {
