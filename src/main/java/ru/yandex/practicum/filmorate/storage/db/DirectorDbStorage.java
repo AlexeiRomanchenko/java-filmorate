@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,8 +22,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -42,10 +44,6 @@ public class DirectorDbStorage implements DirectorStorage {
     private String requestUpdateDirector;
     @Value("${director.reset-all-data-table}")
     private String requestClearTableDirectors;
-
-    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Director addDirector(Director director) {

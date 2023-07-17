@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.LogMPA;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -9,12 +10,9 @@ import ru.yandex.practicum.filmorate.storage.db.RatingMpaDbStorage;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MpaService {
     private final RatingMpaDbStorage ratingMpaDbStorage;
-
-    public MpaService(RatingMpaDbStorage ratingMpaDbStorage) {
-        this.ratingMpaDbStorage = ratingMpaDbStorage;
-    }
 
     public RatingMpa getRatingMpaById(int id) {
         RatingMpa mpa = ratingMpaDbStorage.getRatingMpaById(id);
