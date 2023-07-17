@@ -14,13 +14,14 @@ import ru.yandex.practicum.filmorate.exception.DirectorAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.db.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.storage.db.mapper.DirectorMapper.buildDirectorFromRow;
 
 @Slf4j
 @Component
@@ -67,17 +68,10 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAllDirectors() {
 
         String sqlQuery = "SELECT * FROM directors ";
-        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeDirector));
+        List<Director> directors = new ArrayList<>(jdbcTemplate.query(sqlQuery, DirectorMapper::makeDirector));
         log.info(LogDirector.TRANSFER_LIST_ALL_USERS.getMessage());
 
         return directors;
-
-    }
-
-    private Director makeDirector(ResultSet rs, int id) throws SQLException {
-        int directorId = rs.getInt("director_id");
-        String directorName = rs.getString("director_name");
-        return new Director(directorId, directorName);
     }
 
     @Override
@@ -133,7 +127,6 @@ public class DirectorDbStorage implements DirectorStorage {
         }
         log.info(LogDirector.DELETE_DIRECTOR.getMessage() + removedDirector);
         return removedDirector;
-
     }
 
     @Override
@@ -160,13 +153,6 @@ public class DirectorDbStorage implements DirectorStorage {
             }
         }
         return films;
-    }
-
-    private Director buildDirectorFromRow(SqlRowSet row) {
-        return Director.builder()
-                .name(row.getString("director_name"))
-                .id(row.getInt("director_id"))
-                .build();
     }
 
     private boolean isPresentInDB(Director director) {

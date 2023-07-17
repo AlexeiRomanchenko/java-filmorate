@@ -41,24 +41,23 @@ public class FilmService {
     }
 
     private void checkUserId(Integer id) {
-        if (userStorage.getById(id) == null) {
-            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + id);
-        }
+        userStorage.getById(id).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + id));
     }
 
     public Film update(Film film) {
         ValidatorFilm.validator(film);
-
-        if (filmStorage.getById(film.getId()) != null) {
-            filmStorage.update(film);
-        } else
-            ValidatorFilm.validationFailed(film);
-
+        filmStorage.getById(film.getId()).ifPresentOrElse(
+                f -> filmStorage.update(film),
+                () -> {
+                    throw new ObjectNotFoundException(
+                            LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + film.getId());
+                }
+        );
         return film;
     }
 
     public void deleteFilm(int id) {
-        ValidatorFilm.validator(filmStorage.getById(id));
         filmStorage.delete(id);
     }
 
@@ -71,25 +70,20 @@ public class FilmService {
     }
 
     public Film findFilm(int id) {
-        Film film = filmStorage.getById(id);
-
-        if (film == null) {
-            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage());
-        }
-        return film;
+        return filmStorage.getById(id).orElseThrow(() -> new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage()));
     }
 
     public void addLike(int filmId, int userId) {
-        Film film = filmStorage.getById(filmId);
-        if (film != null) {
-            checkUserId(userId);
-
-            filmStorage.addLike(filmId, userId);
-            eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
-
-        } else {
-            throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
-        }
+        filmStorage.getById(filmId).ifPresentOrElse(
+                f -> {
+                    checkUserId(userId);
+                    filmStorage.addLike(filmId, userId);
+                    eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+                },
+                () -> {
+                    throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
+                }
+        );
     }
 
     public void deleteLike(int filmId, int userId) {

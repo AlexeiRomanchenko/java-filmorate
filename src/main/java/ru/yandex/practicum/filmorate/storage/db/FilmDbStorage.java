@@ -15,13 +15,13 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.RatingMpa;
+import ru.yandex.practicum.filmorate.storage.db.mapper.DirectorMapper;
+import ru.yandex.practicum.filmorate.storage.db.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
     private String requestSearchForFilm;
 
     public Collection<Film> getFilms() {
-        return jdbcTemplate.query(requestAllFilms, this::makeFilm);
+        return jdbcTemplate.query(requestAllFilms, FilmMapper::makeFilm);
     }
 
     @Override
@@ -61,10 +61,14 @@ public class FilmDbStorage implements FilmStorage {
                         "release_date", java.sql.Date.valueOf(film.getReleaseDate()),
                         "rating_id", film.getMpa().getId()))
                 .getKeys();
-        film.setId((Integer) keys.get("film_id"));
-        addGenre((Integer) keys.get("film_id"), film.getGenres());
-        addDirectors((Integer) keys.get("film_id"), film.getDirectors());
-        return getById((Integer) keys.get("film_id"));
+        assert keys != null;
+        Integer id = (Integer) keys.get("film_id");
+        film.setId(id);
+        addGenre(id, film.getGenres());
+        addDirectors(id, film.getDirectors());
+        return getById(id).orElseThrow(() ->
+                new ObjectNotFoundException(
+                        LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + id));
     }
 
     private void addDirectors(int filmId, Set<Director> directors) {
@@ -111,7 +115,9 @@ public class FilmDbStorage implements FilmStorage {
         int filmId = film.getId();
         film.setGenres(getGenres(filmId));
         film.setDirectors(getDirectors(filmId));
-        return getById(filmId);
+        return getById(filmId).orElseThrow(() ->
+                new ObjectNotFoundException(
+                        LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId));
     }
 
     private Set<Director> getDirectors(int filmId) {
@@ -120,14 +126,7 @@ public class FilmDbStorage implements FilmStorage {
                 + "JOIN directors ON directors.director_id = films_directors.director_id "
                 + "WHERE film_id = ? ORDER BY director_id";
 
-        return new HashSet<>(jdbcTemplate.query(sqlQuery, this::makeDirector, filmId));
-
-    }
-
-    private Director makeDirector(ResultSet rs, int id) throws SQLException {
-        int directorId = rs.getInt("director_id");
-        String directorName = rs.getString("director_name");
-        return new Director(directorId, directorName);
+        return new HashSet<>(jdbcTemplate.query(sqlQuery, DirectorMapper::makeDirector, filmId));
     }
 
     @Override
@@ -139,15 +138,19 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    public Film getById(Integer filmId) {
+    public Optional<Film> getById(Integer filmId) {
         String sqlQuery = "SELECT * FROM films "
                 + "JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id "
                 + "WHERE film_id = ?";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, filmId);
         if (srs.next()) {
-            return filmMap(srs);
+            Film film = FilmMapper.filmMap(srs);
+            film.setGenres(getGenres(filmId));
+            film.setDirectors(getDirectors(filmId));
+            return Optional.of(film);
         } else {
-            throw new ObjectNotFoundException("Фильм с ID = " + filmId + " не найден");
+            return Optional.empty();
+
         }
     }
 
@@ -225,61 +228,13 @@ public class FilmDbStorage implements FilmStorage {
                 + "ORDER BY COUNT (likes.film_id) DESC "
                 + "LIMIT "
                 + count;
-        return jdbcTemplate.query(sqlQuery, this::makeFilm);
+        return jdbcTemplate.query(sqlQuery, FilmMapper::makeFilm);
     }
 
     private Genre makeGenre(ResultSet rs, int id) throws SQLException {
         int genreId = rs.getInt("genre_id");
         String genreName = rs.getString("genre_name");
         return new Genre(genreId, genreName);
-    }
-
-    private Film makeFilm(ResultSet rs, int id) throws SQLException {
-        int filmId = rs.getInt("film_id");
-        String name = rs.getString("film_name");
-        String description = rs.getString("description");
-        int duration = rs.getInt("duration");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        int mpaId = rs.getInt("rating_id");
-        String mpaName = rs.getString("rating_name");
-        RatingMpa mpa = new RatingMpa(mpaId, mpaName);
-        Set<Director> directors = new HashSet<>();
-        Set<Genre> genres = new HashSet<>();
-        return Film.builder()
-                .id(filmId)
-                .name(name)
-                .description(description)
-                .duration(duration)
-                .genres(genres)
-                .mpa(mpa)
-                .releaseDate(releaseDate)
-                .directors(directors)
-                .build();
-
-    }
-
-    private Film filmMap(SqlRowSet srs) {
-        int id = srs.getInt("film_id");
-        String name = srs.getString("film_name");
-        String description = srs.getString("description");
-        int duration = srs.getInt("duration");
-        LocalDate releaseDate = Objects.requireNonNull(srs.getDate("release_date")).toLocalDate();
-        int mpaId = srs.getInt("rating_id");
-        String mpaName = srs.getString("rating_name");
-        RatingMpa mpa = new RatingMpa(mpaId, mpaName);
-        Set<Genre> genres = getGenres(id);
-        Set<Director> directors = getDirectors(id);
-        return Film.builder()
-                .id(id)
-                .name(name)
-                .description(description)
-                .duration(duration)
-                .genres(genres)
-                .mpa(mpa)
-                .genres(genres)
-                .releaseDate(releaseDate)
-                .directors(directors)
-                .build();
     }
 
     public void clearDbFilms() {
@@ -301,7 +256,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         String getCommonQuery = requestCommonFilmForTwoUsers;
-        List<Film> list = jdbcTemplate.query(getCommonQuery, this::makeFilm, userId, friendId);
+        List<Film> list = jdbcTemplate.query(getCommonQuery, FilmMapper::makeFilm, userId, friendId);
 
         System.out.println(list);
         return list;
@@ -311,9 +266,9 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getDirectorsFilms(int directorId, String sortBy) {
         List<Film> films;
         if ("year".equals(sortBy)) {
-            films = jdbcTemplate.query(requestFilmIdByYear, this::makeFilm, directorId);
+            films = jdbcTemplate.query(requestFilmIdByYear, FilmMapper::makeFilm, directorId);
         } else {
-            films = jdbcTemplate.query(requestFilmIdByLikes, this::makeFilm, directorId);
+            films = jdbcTemplate.query(requestFilmIdByLikes, FilmMapper::makeFilm, directorId);
         }
         if (films.isEmpty()) {
             log.info(LogDirector.EMPTY_LIST_FILMS_DIRECTOR.getMessage() + directorId);
@@ -326,7 +281,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findRecommendations(Integer userId) {
-        return jdbcTemplate.query(requestGetRecommendedFilms, this::makeFilm, userId, userId);
+        return jdbcTemplate.query(requestGetRecommendedFilms, FilmMapper::makeFilm, userId, userId);
     }
 
     @Override
@@ -339,6 +294,6 @@ public class FilmDbStorage implements FilmStorage {
                         .map(SearchParam::getColumn)
                         .collect(Collectors.joining(" LIKE ? OR ")));
         return jdbcTemplate.query(sql,
-                this::makeFilm, queryList.toArray());
+                FilmMapper::makeFilm, queryList.toArray());
     }
 }

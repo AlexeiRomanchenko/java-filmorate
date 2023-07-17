@@ -8,10 +8,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.db.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,34 +27,23 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Optional<Review> findById(Integer id) {
         String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
-        List<Review> result = jdbcTemplate.query(sql, this::mapToReview, id);
+        List<Review> result = jdbcTemplate.query(sql, ReviewMapper::mapToReview, id);
         if (result.isEmpty()) {
             return Optional.empty();
         }
         return Optional.ofNullable(result.get(0));
     }
 
-    private Review mapToReview(ResultSet resultSet, int rowNum) throws SQLException {
-        Review review = new Review();
-        Integer id = resultSet.getInt("REVIEW_ID");
-        review.setReviewId(id);
-        review.setContent(resultSet.getString("CONTENT"));
-        review.setIsPositive(resultSet.getBoolean("IS_POSITIVE"));
-        review.setUserId(resultSet.getInt("USER_ID"));
-        review.setFilmId(resultSet.getInt("FILM_ID"));
-        return review;
-    }
-
     @Override
     public List<Review> findAll() {
         String sql = "SELECT * FROM REVIEWS";
-        return jdbcTemplate.query(sql, this::mapToReview);
+        return jdbcTemplate.query(sql, ReviewMapper::mapToReview);
     }
 
     @Override
     public List<Review> findAllByFilm(Integer filmId) {
         String sql = "SELECT * FROM REVIEWS WHERE FILM_ID = ?";
-        return jdbcTemplate.query(sql, this::mapToReview, filmId);
+        return jdbcTemplate.query(sql, ReviewMapper::mapToReview, filmId);
     }
 
     @Override
@@ -70,6 +58,7 @@ public class ReviewDbStorage implements ReviewStorage {
                         "user_id", review.getUserId(),
                         "film_id", review.getFilmId()))
                 .getKeys();
+        assert keys != null;
         review.setReviewId((Integer) keys.get("review_id"));
         return review;
     }

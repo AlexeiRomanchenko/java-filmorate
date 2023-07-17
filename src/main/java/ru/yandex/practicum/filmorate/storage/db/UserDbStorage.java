@@ -10,30 +10,15 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.time.LocalDate;
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.storage.db.mapper.UserMapper.userMap;
 
 @Repository
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private static final String GET_USER_ID = "SELECT user_id FROM users WHERE user_id=?";
     private final JdbcTemplate jdbcTemplate;
-
-    private static User userMap(SqlRowSet srs) {
-        int id = srs.getInt("user_id");
-        String name = srs.getString("user_name");
-        String login = srs.getString("login");
-        String email = srs.getString("email");
-        LocalDate birthday = Objects.requireNonNull(srs.getTimestamp("birthday"))
-                .toLocalDateTime().toLocalDate();
-        return User.builder()
-                .id(id)
-                .name(name)
-                .login(login)
-                .email(email)
-                .birthday(birthday)
-                .build();
-    }
 
     public Collection<User> getUsers() {
         String sqlQuery = "SELECT * FROM users";
@@ -62,6 +47,7 @@ public class UserDbStorage implements UserStorage {
                         "email", user.getEmail(),
                         "birthday", java.sql.Date.valueOf(user.getBirthday())))
                 .getKeys();
+        assert keys != null;
         user.setId((Integer) keys.get("user_id"));
         return user;
     }
@@ -89,13 +75,13 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public User getById(Integer userId) {
+    public Optional<User> getById(Integer userId) {
         String sqlQuery = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, userId);
         if (srs.next()) {
-            return userMap(srs);
+            return Optional.of(userMap(srs));
         } else {
-            throw new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -119,7 +105,7 @@ public class UserDbStorage implements UserStorage {
                 + "WHERE user_id = ?)";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, userId);
         while (srs.next()) {
-            friends.add(UserDbStorage.userMap(srs));
+            friends.add(userMap(srs));
         }
         return friends;
     }
@@ -132,7 +118,7 @@ public class UserDbStorage implements UserStorage {
                 + "AND friend_id NOT IN (?, ?))";
         SqlRowSet srs = jdbcTemplate.queryForRowSet(sqlQuery, friend1, friend2, friend1, friend2);
         while (srs.next()) {
-            commonFriends.add(UserDbStorage.userMap(srs));
+            commonFriends.add(userMap(srs));
         }
         return commonFriends;
     }
