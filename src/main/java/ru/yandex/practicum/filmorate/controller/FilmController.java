@@ -58,7 +58,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void setLike(@Positive @PathVariable int id, @Positive @PathVariable int userId) {
+    public void setLike(@PathVariable int id, @PathVariable int userId) {
         log.info("{} {} {} {} {}",
                 LogMessagesFilms.USER_SET_LIKE_FILM_REQUEST.getMessage(),
                 LogMessagesFilms.FILMS_ID.getMessage(), id,
@@ -67,10 +67,7 @@ public class FilmController {
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    public void deleteLike(
-            @Positive @PathVariable int id,
-            @Positive@PathVariable int userId) {
-
+    public void deleteLike(@PathVariable int id, @PathVariable int userId) {
         log.info("{} {} {} {} {}",
                 LogMessagesFilms.USER_DELETE_LIKE_FILM_REQUEST.getMessage(),
                 LogMessagesFilms.FILMS_ID.getMessage(), id,

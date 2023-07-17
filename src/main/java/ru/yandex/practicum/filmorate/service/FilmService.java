@@ -78,8 +78,8 @@ public class FilmService {
         if (film != null) {
             checkUserId(userId);
 
-            filmStorage.addLike(filmId, userId);
-            eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+                filmStorage.addLike(filmId, userId);
+                eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
 
         } else {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
@@ -87,7 +87,13 @@ public class FilmService {
     }
 
     public void deleteLike(int filmId, int userId) {
+
+        if (userId < 0) {
+            throw new ObjectNotFoundException(LogMessagesUsers.ID_NOT_POSITIVE.getMessage());
+        }
+
         filmStorage.removeLike(filmId, userId);
+
         eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
