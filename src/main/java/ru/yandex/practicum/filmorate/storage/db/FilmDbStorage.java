@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.description.LogDirector;
 import ru.yandex.practicum.filmorate.description.LogMessagesFilms;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.description.SearchParam;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -28,9 +28,6 @@ import java.util.stream.Collectors;
 @Repository
 public class FilmDbStorage implements FilmStorage {
 
-
-    public static final String TITLE_COLUMN = "UPPER(f.film_name)";
-    public static final String DIRECTOR_COLUMN = "UPPER(d.director_name)";
     private final JdbcTemplate jdbcTemplate;
     @Value("${film.requestCommonFilmForTwoUsers}")
     private String requestCommonFilmForTwoUsers;
@@ -74,8 +71,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId((Integer) keys.get("film_id"));
         addGenre((Integer) keys.get("film_id"), film.getGenres());
         addDirectors((Integer) keys.get("film_id"), film.getDirectors());
-        Film newFilm = getById((Integer) keys.get("film_id"));
-        return newFilm;
+        return getById((Integer) keys.get("film_id"));
     }
 
     private void addDirectors(int filmId, List<Director> directors) {
@@ -367,22 +363,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> findSearchedFilm(String query, List<String> searchParams) {
+    public Collection<Film> findSearchedFilm(String query, List<SearchParam> searchParams) {
         List<String> queryList = new ArrayList<>(
                 Collections.nCopies(searchParams.size(),
                         "%" + query.toUpperCase() + "%"));
-        searchParams.replaceAll(param -> {
-            switch (param) {
-                case "title":
-                    return TITLE_COLUMN;
-                case "director":
-                    return DIRECTOR_COLUMN;
-                default:
-                    throw new BadRequestException("Invalid search parameter");
-            }
-        });
         String sql = String.format(requestSearchForFilm,
-                String.join(" LIKE ? OR ", searchParams));
+                searchParams.stream()
+                        .map(SearchParam::getColumn)
+                        .collect(Collectors.joining(" LIKE ? OR ")));
         return jdbcTemplate.query(sql,
                         this::makeFilm, queryList.toArray())
                 .stream().peek(f -> f.setDirectors(getDirectors(f.getId())))
