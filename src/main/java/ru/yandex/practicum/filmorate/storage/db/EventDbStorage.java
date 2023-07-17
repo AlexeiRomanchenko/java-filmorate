@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -16,13 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public EventDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public void createEvent(Integer userID, EventType eventType, Operation operation, Integer entityId) {

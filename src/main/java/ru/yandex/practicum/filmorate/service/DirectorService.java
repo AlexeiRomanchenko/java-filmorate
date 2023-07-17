@@ -1,23 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.db.DirectorDbStorage;
 
 import java.util.Collection;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class DirectorService {
 
     private final DirectorDbStorage directorStorage;
-
-    @Autowired
-    public DirectorService(DirectorDbStorage directorStorage) {
-        this.directorStorage = directorStorage;
-    }
 
     public Collection<Director> getAllDirectors() {
         return directorStorage.getAllDirectors();
