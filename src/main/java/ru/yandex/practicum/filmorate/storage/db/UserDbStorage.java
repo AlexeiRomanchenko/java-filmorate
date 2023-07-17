@@ -98,7 +98,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     public List<User> getFriends(int userId) {
-        getById(userId);
+        getById(userId).orElseThrow(() ->
+                new ObjectNotFoundException(LogMessagesUsers.USER_NO_FOUND_WITH_ID.getMessage() + userId));
         List<User> friends = new ArrayList<>();
         String sqlQuery = "SELECT * FROM users "
                 + "WHERE users.user_id IN (SELECT friend_id from friends "
