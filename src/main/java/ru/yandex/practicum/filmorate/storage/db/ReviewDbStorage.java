@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -124,9 +125,12 @@ public class ReviewDbStorage implements ReviewStorage {
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", review.getReviewId());
 
         String sql = "INSERT INTO REVIEW_USEFUL (REVIEW_ID, USER_ID, GRADE) VALUES(?, ?, ?)";
+        List<Object[]> batchArgs = new ArrayList<>();
         Map<Integer, Boolean> grades = review.getGrades();
         for (var grade : grades.entrySet()) {
-            jdbcTemplate.update(sql, review.getReviewId(), grade.getKey(), grade.getValue());
+            Object[] args = {review.getReviewId(), grade.getKey(), grade.getValue()};
+            batchArgs.add(args);
         }
+        jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 }
