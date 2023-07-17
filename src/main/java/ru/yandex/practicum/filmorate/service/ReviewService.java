@@ -27,14 +27,7 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final EventStorage eventStorage;
 
-    @Autowired
-    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, EventStorage eventStorage) {
-        this.reviewStorage = reviewStorage;
-        this.userStorage = userStorage;
-        this.eventStorage = eventStorage;
-    }
-
-  public Review create(Review review) {
+    public Review create(Review review) {
         validationBeforeCreate(review);
         Review newData = reviewStorage.create(review);
         eventStorage.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getReviewId());
