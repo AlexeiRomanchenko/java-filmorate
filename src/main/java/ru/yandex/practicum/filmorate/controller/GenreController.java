@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.description.LogGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @Slf4j
@@ -22,8 +23,8 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable Integer id) {
-        log.info(LogGenre.GET_GENRE_REQUEST.getMessage() + id);
+    public Genre getGenreById(@Positive @PathVariable Integer id) {
+        log.info(LogGenre.GET_GENRE_REQUEST.getMessage(), id);
         return genreService.getGenreById(id);
     }
 

@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -22,8 +23,8 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public Review findById(@PathVariable Integer id) {
-        log.info(LogMessagesReviews.GET_REVIEW_BY_ID_REQUEST.getMessage() + id);
+    public Review findById(@Positive @PathVariable Integer id) {
+        log.info(LogMessagesReviews.GET_REVIEW_BY_ID_REQUEST.getMessage(), id);
         return reviewService.findById(id);
     }
 
@@ -46,39 +47,59 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@Positive @PathVariable Integer id) {
         log.info(LogMessagesReviews.DELETE_REVIEW_REQUEST.getMessage());
         reviewService.delete(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void addLike(
+            @Positive @PathVariable Integer id,
+            @Positive @PathVariable Integer userId) {
+
         log.info(LogMessagesReviews.UPDATE_LIKE_REQUEST.getMessage());
+
         reviewService.addLike(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    public void addDislike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void addDislike(
+
+            @Positive @PathVariable Integer id,
+            @Positive @PathVariable Integer userId) {
+
         log.info(LogMessagesReviews.UPDATE_DISLIKE_REQUEST.getMessage());
+
         reviewService.addDislike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void delLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void delLike(
+            @Positive @PathVariable Integer id,
+            @Positive @PathVariable Integer userId) {
+
         log.info(LogMessagesReviews.DELETE_LIKE_REQUEST.getMessage());
+
         reviewService.delLike(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public void delDislike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void delDislike(
+            @Positive @PathVariable Integer id,
+            @Positive @PathVariable Integer userId) {
+
         log.info(LogMessagesReviews.DELETE_DISLIKE_REQUEST.getMessage());
+
         reviewService.delLike(id, userId);
     }
 
     @GetMapping(params = {"filmId"})
-    public List<Review> findAllByFilm(@RequestParam(required = false) Integer filmId,
-                                      @RequestParam(defaultValue = "10") Integer count) {
+    public List<Review> findAllByFilm(
+            @Positive @RequestParam(required = false) Integer filmId,
+            @Positive @RequestParam(defaultValue = "10") Integer count) {
+
         log.info(LogMessagesReviews.GET_REVIEWS_BY_FILM_REQUEST.getMessage());
+
         return reviewService.findAllByFilm(filmId, count);
     }
 

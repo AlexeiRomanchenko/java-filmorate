@@ -22,7 +22,6 @@ public class User {
     @PastOrPresent
     @NotNull
     private LocalDate birthday;
-    private Set<Integer> likes;
 
     public void addFriendById(long id) {
         checkOnNullFriends();

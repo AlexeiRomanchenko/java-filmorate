@@ -4,7 +4,7 @@ public enum LogMessagesReviews {
     MSG_ERR_ID("Некорректный id"),
     MSG_ERR_NOT_FOUND("Не найдено по id "),
     GET_ALL_REVIEWS_REQUEST("Получен запрос на получение всех отзывов."),
-    GET_REVIEW_BY_ID_REQUEST("Получен запрос на получение отзыва с ID = "),
+    GET_REVIEW_BY_ID_REQUEST("Получен запрос на получение отзыва с ID = {}"),
     CREATE_REVIEW_REQUEST("Получен запрос на создание отзыва."),
     UPDATE_REVIEW_REQUEST("Получен запрос на обновление данных отзыва."),
     DELETE_REVIEW_REQUEST("Получен запрос на удаление отзыва."),
