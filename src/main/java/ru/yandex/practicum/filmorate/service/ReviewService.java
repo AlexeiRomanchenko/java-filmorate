@@ -72,6 +72,8 @@ public class ReviewService {
 
     public List<Review> findAll() {
         List<Review> reviews = reviewStorage.findAll();
+        Comparator<Review> usefulComparator = Comparator.comparing(Review::getUseful).reversed();
+        reviews.sort(usefulComparator);
         return reviews;
     }
 
@@ -135,8 +137,10 @@ public class ReviewService {
             reviews = reviewStorage.findAllByFilm(filmId);
         }
 
+        Comparator<Review> usefulComparator = Comparator.comparing(Review::getUseful).reversed();
+
         return reviews.stream()
-                .sorted(Comparator.comparing(Review::getUseful).reversed())
+                .sorted(usefulComparator)
                 .limit(count)
                 .collect(Collectors.toList());
     }
