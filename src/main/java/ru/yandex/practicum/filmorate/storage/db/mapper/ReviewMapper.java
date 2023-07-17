@@ -14,6 +14,7 @@ public class ReviewMapper {
         review.setIsPositive(resultSet.getBoolean("IS_POSITIVE"));
         review.setUserId(resultSet.getInt("USER_ID"));
         review.setFilmId(resultSet.getInt("FILM_ID"));
+        review.setUseful(0);
         return review;
     }
 }

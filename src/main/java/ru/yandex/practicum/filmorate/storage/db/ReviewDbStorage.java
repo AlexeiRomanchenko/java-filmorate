@@ -11,13 +11,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.db.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,23 +38,11 @@ public class ReviewDbStorage implements ReviewStorage {
         return Optional.of(review);
     }
 
-    private Review mapToReview(ResultSet resultSet, int rowNum) throws SQLException {
-        Review review = new Review();
-        Integer id = resultSet.getInt("REVIEW_ID");
-        review.setReviewId(id);
-        review.setContent(resultSet.getString("CONTENT"));
-        review.setIsPositive(resultSet.getBoolean("IS_POSITIVE"));
-        review.setUserId(resultSet.getInt("USER_ID"));
-        review.setFilmId(resultSet.getInt("FILM_ID"));
-        review.setUseful(0);
-        return review;
-    }
-
     @Override
     public List<Review> findAll() {
         String sql = "SELECT * FROM REVIEWS";
 
-        List<Review> reviews = jdbcTemplate.query(sql, this::mapToReview);
+        List<Review> reviews = jdbcTemplate.query(sql, ReviewMapper::mapToReview);
         Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
 
         String sqlUseful = "SELECT * FROM REVIEW_USEFUL";
@@ -80,7 +62,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public List<Review> findAllByFilm(Integer filmId) {
         String sql = "SELECT * FROM REVIEWS WHERE FILM_ID = ?";
 
-        List<Review> reviews = jdbcTemplate.query(sql, this::mapToReview, filmId);
+        List<Review> reviews = jdbcTemplate.query(sql, ReviewMapper::mapToReview, filmId);
         Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
 
         String sqlUseful = "SELECT REVIEW_USEFUL.REVIEW_ID, REVIEW_USEFUL.USER_ID, REVIEW_USEFUL.GRADE FROM REVIEW_USEFUL " +
