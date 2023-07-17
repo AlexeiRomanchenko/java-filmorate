@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
+import ru.yandex.practicum.filmorate.description.SearchParam;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -28,5 +29,5 @@ public interface FilmStorage extends LikesStorage {
 
     List<Film> findRecommendations(Integer id);
 
-    Collection<Film> findSearchedFilm(String query, List<String> searchParams);
+    Collection<Film> findSearchedFilm(String query, List<SearchParam> searchParams);
 }
