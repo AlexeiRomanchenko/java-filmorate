@@ -19,17 +19,4 @@ public class Review {
     private Integer userId;
     private Integer filmId;
     private Integer useful;
-
-//    public int getUseful() {
-//        return grades.values().stream().mapToInt(positive -> positive ? 1 : -1).sum();
-//    }
-//
-//    public void addGrade(Integer userId, boolean positive) {
-//        grades.put(userId, positive);
-//    }
-//
-//    public void delGrade(Integer userId) {
-//        grades.remove(userId);
-//    }
-
 }
