@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -20,21 +21,21 @@ public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Event createEvent(Event event) {
+    public void createEvent(Integer userID, EventType eventType, Operation operation, Integer entityId) {
+        Event event = new Event();
+
         Map<String, Object> keys = new SimpleJdbcInsert(this.jdbcTemplate)
                 .withTableName("events")
                 .usingColumns("event_timestamp", "user_id", "event_type", "operation", "entity_id")
                 .usingGeneratedKeyColumns("event_id")
                 .executeAndReturnKeyHolder(Map.of(
-                        "event_timestamp", event.getTimestamp(),
-                        "user_id", event.getUserId(),
-                        "event_type", event.getEventType().getEvent(),
-                        "operation", event.getOperation().getOperation(),
-                        "entity_id", event.getEntityId()))
+                        "event_timestamp", Instant.now().toEpochMilli(),
+                        "user_id", userID,
+                        "event_type", eventType.getEvent(),
+                        "operation", operation.getOperation(),
+                        "entity_id", entityId))
                 .getKeys();
         event.setEventId((Integer) keys.get("event_id"));
-
-        return event;
     }
 
     @Override

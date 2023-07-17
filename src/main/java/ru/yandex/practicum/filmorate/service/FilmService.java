@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.description.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
 
     public Film createFilm(Film film) {
         ValidatorFilm.validator(film);
@@ -73,7 +74,7 @@ public class FilmService {
             checkUserId(userId);
 
             filmStorage.addLike(filmId, userId);
-            eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+            eventStorage.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
 
         } else {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
@@ -88,7 +89,7 @@ public class FilmService {
 
         filmStorage.removeLike(filmId, userId);
 
-        eventService.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
+        eventStorage.createEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
     }
 
     public Collection<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear) {

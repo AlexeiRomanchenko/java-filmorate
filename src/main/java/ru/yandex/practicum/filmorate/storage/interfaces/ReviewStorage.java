@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.interfaces;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ReviewStorage {
@@ -18,9 +19,9 @@ public interface ReviewStorage {
 
     int delete(Integer id);
 
-    void loadAllGrades(List<Review> reviews);
+    Map<Integer, Boolean> addGrade(Integer id, Integer userId, boolean positive);
 
-    void loadGrades(Review review);
+    void delGrade(Integer id, Integer userId);
 
-    void saveGrades(Review review);
+    void saveGrades(Review review, Map<Integer, Boolean> grades);
 }
