@@ -47,43 +47,44 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable int userId) {
-        log.info(LogMessagesUsers.DELETE_USER_REQUEST.getMessage() + userId);
+        log.info(LogMessagesUsers.DELETE_USER_REQUEST.getMessage(), userId);
         userService.deleteUser(userId);
     }
 
     @GetMapping("/{id}")
     public User findUser(@PathVariable int id) {
-        log.info(LogMessagesUsers.GET_USER_BY_ID_REQUEST.getMessage() + id);
+        log.info(LogMessagesUsers.GET_USER_BY_ID_REQUEST.getMessage(), id);
         return userService.findUser(id);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
     public void addToFriendList(@PathVariable int id, @PathVariable int friendId) {
-        log.info(LogMessagesUsers.USER_ADD_FRIEND_REQUEST.getMessage()
-                + LogMessagesUsers.USER_ID.getMessage() + id
-                + LogMessagesUsers.FRIEND_ID.getMessage() + friendId);
+        log.info("{} {} {} {} {}", LogMessagesUsers.USER_ADD_FRIEND_REQUEST.getMessage(),
+                LogMessagesUsers.USER_ID.getMessage(), id,
+                LogMessagesUsers.FRIEND_ID.getMessage(), friendId);
         userService.addToFriendList(id, friendId);
     }
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void removeFromListFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info(LogMessagesUsers.USER_DELETE_FRIEND_REQUEST.getMessage()
-                + LogMessagesUsers.USER_ID.getMessage() + id
-                + LogMessagesUsers.FRIEND_ID.getMessage() + friendId);
+        log.info(LogMessagesUsers.USER_DELETE_FRIEND_REQUEST.getMessage(),
+                LogMessagesUsers.USER_ID.getMessage(), id,
+                LogMessagesUsers.FRIEND_ID.getMessage(), friendId);
         userService.removeFromListFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriendList(@PathVariable int id) {
-        log.info(LogMessagesUsers.GET_LIST_FRIENDS_USER_REQUEST.getMessage() + LogMessagesUsers.USER_ID + id);
+        log.info("{} {} {}", LogMessagesUsers.GET_LIST_FRIENDS_USER_REQUEST.getMessage(),
+                LogMessagesUsers.USER_ID, id);
         return userService.getListFriendsUserById(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        log.info(LogMessagesUsers.GET_LIST_COMMON_FRIENDS_REQUEST.getMessage()
-                + LogMessagesUsers.USER_ID.getMessage() + id
-                + LogMessagesUsers.USER_ID.getMessage() + otherId);
+        log.info("{} {} {} {} {}", LogMessagesUsers.GET_LIST_COMMON_FRIENDS_REQUEST.getMessage(),
+                LogMessagesUsers.USER_ID.getMessage(), id,
+                LogMessagesUsers.USER_ID.getMessage(), otherId);
         return userService.getCommonFriends(id, otherId);
     }
 
@@ -95,8 +96,9 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public Collection<Film> getRecommendedFilms(@PathVariable int id) {
-        log.info(LogMessagesUsers.GET_LIST_RECOMMENDED_FILMS_REQUEST.getMessage()
-                + LogMessagesUsers.USER_ID.getMessage() + id);
+        log.info(LogMessagesUsers.GET_LIST_RECOMMENDED_FILMS_REQUEST.getMessage(),
+                LogMessagesUsers.USER_ID.getMessage(), id);
         return userService.getRecommendations(id);
     }
+
 }

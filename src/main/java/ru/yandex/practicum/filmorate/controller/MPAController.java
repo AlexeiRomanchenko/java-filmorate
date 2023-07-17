@@ -29,7 +29,7 @@ public class MPAController {
 
     @GetMapping("/{id}")
     public RatingMpa getRatingMpaById(@PathVariable Integer id) {
-        log.info(LogMPA.GET_MPA_REQUEST.getMessage() + id);
+        log.info(LogMPA.GET_MPA_REQUEST.getMessage(), id);
         return mpaService.getRatingMpaById(id);
     }
 

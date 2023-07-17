@@ -23,7 +23,7 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public Review findById(@PathVariable Integer id) {
-        log.info(LogMessagesReviews.GET_REVIEW_BY_ID_REQUEST.getMessage() + id);
+        log.info(LogMessagesReviews.GET_REVIEW_BY_ID_REQUEST.getMessage(), id);
         return reviewService.findById(id);
     }
 
