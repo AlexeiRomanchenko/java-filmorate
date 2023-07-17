@@ -17,7 +17,7 @@ public enum LogMessagesFilms {
     DELETE_FILM("Фильм удален из базы."),
     FILM_NOT_VALIDATED_DATE("Данный фильм не прошел валидацию по дате: "),
     FILM_DATA_UPDATED("Данные фильма обновлены: "),
-    FILM_NO_FOUND_WITH_ID("Фильма с таким id нет."),
+    FILM_NO_FOUND_WITH_ID("Нет фильма с id = "),
     GET_COMMON_FILMS_FOR_USERS_WITH_ID("Получение общих фильмов для пользователей с id = {}"),
     FILM_ALREADY_EXISTS("Данный фильм уже присутствует в базе: "),
     SEARCH_FOR_FILM("Получен запрос на поиск фильма содержащем: \"%s\" в параметрах: \"%s\"");

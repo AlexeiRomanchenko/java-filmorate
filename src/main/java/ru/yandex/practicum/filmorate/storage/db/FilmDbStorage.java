@@ -271,7 +271,6 @@ public class FilmDbStorage implements FilmStorage {
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         List<Director> directors = new ArrayList<>();
         Set<Genre> genres = getGenres(filmId);
-        Set<Integer> likes = getLikes(filmId);
         return Film.builder()
                 .id(filmId)
                 .name(name)
@@ -281,8 +280,8 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(mpa)
                 .releaseDate(releaseDate)
                 .directors(directors)
-                .likes(likes)
                 .build();
+
     }
 
     private Film filmMap(SqlRowSet srs) {
@@ -295,7 +294,6 @@ public class FilmDbStorage implements FilmStorage {
         String mpaName = srs.getString("rating_name");
         RatingMpa mpa = new RatingMpa(mpaId, mpaName);
         Set<Genre> genres = getGenres(id);
-        Set<Integer> likes = getLikes(id);
         List<Director> directors = getDirectors(id);
         return Film.builder()
                 .id(id)
@@ -306,7 +304,6 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(mpa)
                 .genres(genres)
                 .releaseDate(releaseDate)
-                .likes(likes)
                 .directors(directors)
                 .build();
     }

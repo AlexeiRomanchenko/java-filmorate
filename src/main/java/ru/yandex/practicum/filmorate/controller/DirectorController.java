@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 
 @Slf4j
@@ -32,7 +33,7 @@ public class DirectorController {
     }
 
     @GetMapping("/directors/{id}")
-    public Director getDirectorById(@PathVariable int id) {
+    public Director getDirectorById(@Positive @PathVariable int id) {
         log.info(LogDirector.GET_DIRECTOR_BY_ID_REQUEST.getMessage(), id);
         return directorService.getDirectorById(id);
     }
@@ -50,7 +51,7 @@ public class DirectorController {
     }
 
     @DeleteMapping("/directors/{id}")
-    public Director deleteDirectorById(@PathVariable int id) {
+    public Director deleteDirectorById(@Positive @PathVariable int id) {
         log.info(LogDirector.DELETE_DIRECTOR_BY_ID_REQUEST.getMessage(), id);
         return directorService.deleteDirectorById(id);
     }
