@@ -44,6 +44,8 @@ public class DirectorDbStorage implements DirectorStorage {
     private String requestUpdateDirector;
     @Value("${director.reset-all-data-table}")
     private String requestClearTableDirectors;
+    @Value("${director.load-all-directors-for-films}")
+    private String requestToLoadAllDirectors;
 
     @Override
     public Director addDirector(Director director) {
@@ -147,14 +149,14 @@ public class DirectorDbStorage implements DirectorStorage {
     public Collection<Film> loadAllDirectors(Collection<Film> films) {
         Map<Integer, Film> filmsMap = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
         String inSql = String.join(", ", Collections.nCopies(filmsMap.size(), "?"));
-        String sql = String.format
-                ("SELECT * FROM films_directors fd JOIN directors d ON fd.director_id = d.director_id WHERE film_id IN (%s) ORDER BY fd.film_id, fd.director_id ASC", inSql);
+        String sql = String.format(requestToLoadAllDirectors, inSql);
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, filmsMap.keySet().toArray());
 
         while (sqlRowSet.next()) {
             Film film = filmsMap.get(sqlRowSet.getInt("film_id"));
             if (film != null) {
-                film.addDirector(new Director(sqlRowSet.getInt("director_id"), sqlRowSet.getString("director_name")));
+                film.addDirector(new Director(sqlRowSet.getInt("director_id"),
+                        sqlRowSet.getString("director_name")));
             }
         }
         return films;
