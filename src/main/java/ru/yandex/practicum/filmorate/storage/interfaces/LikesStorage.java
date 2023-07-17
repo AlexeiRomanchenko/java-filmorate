@@ -9,7 +9,7 @@ public interface LikesStorage {
 
     void addLike(int filmId, int userId);
 
-    void removeLike(int filmId, int userId);
+    Integer removeLike(int filmId, int userId);
 
     List<Film> getSortedPopularFilms(Integer count, Integer genreId, Integer releaseYear);
 

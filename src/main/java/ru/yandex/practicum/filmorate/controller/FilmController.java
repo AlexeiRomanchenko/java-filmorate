@@ -69,7 +69,7 @@ public class FilmController {
     @DeleteMapping(value = "/{id}/like/{userId}")
     public void deleteLike(
             @Positive @PathVariable int id,
-            @Positive@PathVariable int userId) {
+            @Positive @PathVariable int userId) {
 
         log.info("{} {} {} {} {}",
                 LogMessagesFilms.USER_DELETE_LIKE_FILM_REQUEST.getMessage(),

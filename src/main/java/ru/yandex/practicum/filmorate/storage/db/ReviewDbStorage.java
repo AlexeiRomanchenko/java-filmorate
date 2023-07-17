@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -86,7 +86,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getReviewId());
         return findById(review.getReviewId()).orElseThrow(() -> {
             String message = "Отзыв не найден";
-            throw new ObjectNotFoundException(message);
+            return new ObjectNotFoundException(message);
         });
     }
 

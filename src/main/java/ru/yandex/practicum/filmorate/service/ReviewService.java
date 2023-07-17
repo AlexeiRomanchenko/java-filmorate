@@ -12,8 +12,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
-import ru.yandex.practicum.filmorate.description.EventType;
-import ru.yandex.practicum.filmorate.description.Operation;
 
 import java.util.Comparator;
 import java.util.List;

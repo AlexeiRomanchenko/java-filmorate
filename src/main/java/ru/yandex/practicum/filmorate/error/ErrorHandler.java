@@ -10,9 +10,18 @@ import ru.yandex.practicum.filmorate.exception.ActionHasAlreadyDoneException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
+import javax.validation.ConstraintViolationException;
+
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleIncorrectValidException(final ConstraintViolationException e) {
+        log.info(LogError.INCORRECT_REQUEST.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectValidException(final ValidationException e) {

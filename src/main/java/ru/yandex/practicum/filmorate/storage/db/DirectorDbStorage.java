@@ -12,16 +12,18 @@ import ru.yandex.practicum.filmorate.description.LogSQL;
 import ru.yandex.practicum.filmorate.exception.DirectorAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.interfaces.DirecorStorage;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class DirectorDbStorage implements DirecorStorage {
+public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
     @Value("${director.get-id-by-director}")
@@ -141,6 +143,23 @@ public class DirectorDbStorage implements DirecorStorage {
 
         log.info(LogDirector.TABLE_DIRECTOR_CLEAR.getMessage());
 
+    }
+
+    @Override
+    public Collection<Film> loadAllDirectors(Collection<Film> films) {
+        Map<Integer, Film> filmsMap = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
+        String inSql = String.join(", ", Collections.nCopies(filmsMap.size(), "?"));
+        String sql = String.format
+                ("SELECT * FROM films_directors fd JOIN directors d ON fd.director_id = d.director_id WHERE film_id IN (%s) ORDER BY fd.film_id, fd.director_id ASC", inSql);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, filmsMap.keySet().toArray());
+
+        while (sqlRowSet.next()) {
+            Film film = filmsMap.get(sqlRowSet.getInt("film_id"));
+            if (film != null) {
+                film.addDirector(new Director(sqlRowSet.getInt("director_id"), sqlRowSet.getString("director_name")));
+            }
+        }
+        return films;
     }
 
     private Director buildDirectorFromRow(SqlRowSet row) {

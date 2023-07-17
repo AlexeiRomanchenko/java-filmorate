@@ -6,7 +6,6 @@ import lombok.Data;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,11 +21,15 @@ public class Film {
     @Positive
     private Integer duration;
     private Set<Genre> genres;
-    private List<Director> directors;
+    private Set<Director> directors;
     private RatingMpa mpa;
 
     public void addGenre(Genre genre) {
         genres.add(genre);
+    }
+
+    public void addDirector(Director director) {
+        directors.add(director);
     }
 
     public void deleteAllGenres() {
