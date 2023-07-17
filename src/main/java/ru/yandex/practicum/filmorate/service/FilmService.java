@@ -22,13 +22,6 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
 
-    @Autowired
-    public FilmService(UserStorage userStorage, FilmStorage filmStorage, EventStorage eventStorage) {
-        this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
-        this.eventStorage = eventStorage;
-    }
-
     public Film createFilm(Film film) {
         ValidatorFilm.validator(film);
         return filmStorage.create(film);
@@ -81,7 +74,7 @@ public class FilmService {
             checkUserId(userId);
 
             filmStorage.addLike(filmId, userId);
-            eventService.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+            eventStorage.createEvent(userId, EventType.LIKE, Operation.ADD, filmId);
 
         } else {
             throw new ObjectNotFoundException(LogMessagesFilms.FILM_NO_FOUND_WITH_ID.getMessage() + filmId);
