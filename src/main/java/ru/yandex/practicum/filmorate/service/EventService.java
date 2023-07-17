@@ -23,14 +23,4 @@ public class EventService {
         return eventStorage.findEventsByUserID(id);
     }
 
-    public Event createEvent(Integer userID, EventType eventType, Operation operation, Integer entityId) {
-        Event event = new Event();
-        event.setTimestamp(Instant.now().toEpochMilli());
-        event.setEventType(eventType);
-        event.setOperation(operation);
-        event.setUserId(userID);
-        event.setEntityId(entityId);
-
-        return eventStorage.createEvent(event);
-    }
 }

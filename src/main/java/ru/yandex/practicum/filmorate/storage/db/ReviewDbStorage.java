@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,19 +9,18 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 @Primary
+@Slf4j
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -33,10 +33,23 @@ public class ReviewDbStorage implements ReviewStorage {
     public Optional<Review> findById(Integer id) {
         String sql = "SELECT * FROM REVIEWS WHERE REVIEW_ID = ?";
         List<Review> result = jdbcTemplate.query(sql, this::mapToReview, id);
+
         if (result.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(result.get(0));
+        Review review = result.get(0);
+
+        String sqlUseful = "SELECT * FROM REVIEW_USEFUL WHERE  REVIEW_ID = ?";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlUseful, review.getReviewId());
+        while (sqlRowSet.next()) {
+            Integer gradeInt = review.getUseful();
+            if (gradeInt == null) {
+                gradeInt = 0;
+            }
+            gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
+            review.setUseful(gradeInt);
+        }
+        return Optional.of(review);
     }
 
     private Review mapToReview(ResultSet resultSet, int rowNum) throws SQLException {
@@ -53,13 +66,51 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> findAll() {
         String sql = "SELECT * FROM REVIEWS";
-        return jdbcTemplate.query(sql, this::mapToReview);
+
+        List<Review> reviews = jdbcTemplate.query(sql, this::mapToReview);
+        Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
+
+        String sqlUseful = "SELECT * FROM REVIEW_USEFUL";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlUseful);
+
+        while (sqlRowSet.next()) {
+            Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
+            if (review != null) {
+                Integer gradeInt = review.getUseful();
+                if (gradeInt == null) {
+                    gradeInt = 0;
+                }
+                gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
+                review.setUseful(gradeInt);
+            }
+        }
+
+        return reviews;
     }
 
     @Override
     public List<Review> findAllByFilm(Integer filmId) {
         String sql = "SELECT * FROM REVIEWS WHERE FILM_ID = ?";
-        return jdbcTemplate.query(sql, this::mapToReview, filmId);
+
+        List<Review> reviews = jdbcTemplate.query(sql, this::mapToReview, filmId);
+        Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
+
+        String sqlUseful = "SELECT REVIEW_USEFUL.REVIEW_ID, REVIEW_USEFUL.USER_ID, REVIEW_USEFUL.GRADE FROM REVIEW_USEFUL " +
+                "JOIN REVIEWS ON REVIEW_USEFUL.REVIEW_ID = REVIEWS.REVIEW_ID " +
+                "WHERE  REVIEWS.FILM_ID = ?";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlUseful, filmId);
+        while (sqlRowSet.next()) {
+            Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
+            if (review != null) {
+                Integer gradeInt = review.getUseful();
+                if (gradeInt == null) {
+                    gradeInt = 0;
+                }
+                gradeInt += getGrade(sqlRowSet.getBoolean("GRADE"));
+                review.setUseful(gradeInt);
+            }
+        }
+        return reviews;
     }
 
     @Override
@@ -96,41 +147,40 @@ public class ReviewDbStorage implements ReviewStorage {
         return jdbcTemplate.update("DELETE FROM REVIEWS WHERE REVIEW_ID = ?", id);
     }
 
-    @Override
-    public void loadAllGrades(List<Review> reviews) {
-        String sql = "SELECT * FROM REVIEW_USEFUL";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
-
-        Map<Integer, Review> reviewMap = reviews.stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
-
+    public Map<Integer, Boolean> addGrade(Integer id, Integer userId, boolean positive) {
+        String sqlUseful = "SELECT * FROM REVIEW_USEFUL WHERE  REVIEW_ID = ?";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlUseful, id);
+        Map<Integer, Boolean> grades = new HashMap<>();
         while (sqlRowSet.next()) {
-            Review review = reviewMap.get(sqlRowSet.getInt("REVIEW_ID"));
-            if (review != null) {
-                review.addGrade(sqlRowSet.getInt("USER_ID"), sqlRowSet.getBoolean("GRADE"));
-            }
+            grades.put(sqlRowSet.getInt("USER_ID"), sqlRowSet.getBoolean("GRADE"));
         }
+        grades.put(userId, positive);
+        return grades;
+    }
+
+    public void delGrade(Integer id, Integer userId) {
+        jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?" +
+                "               AND USER_ID = ?", id, userId);
     }
 
     @Override
-    public void loadGrades(Review review) {
-        String sql = "SELECT * FROM REVIEW_USEFUL WHERE  REVIEW_ID = ?";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, review.getReviewId());
-        while (sqlRowSet.next()) {
-            review.addGrade(sqlRowSet.getInt("USER_ID"), sqlRowSet.getBoolean("GRADE"));
-        }
-    }
-
-    @Override
-    public void saveGrades(Review review) {
+    public void saveGrades(Review review, Map<Integer, Boolean> grades) {
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ?", review.getReviewId());
 
         String sql = "INSERT INTO REVIEW_USEFUL (REVIEW_ID, USER_ID, GRADE) VALUES(?, ?, ?)";
         List<Object[]> batchArgs = new ArrayList<>();
-        Map<Integer, Boolean> grades = review.getGrades();
         for (var grade : grades.entrySet()) {
             Object[] args = {review.getReviewId(), grade.getKey(), grade.getValue()};
             batchArgs.add(args);
         }
         jdbcTemplate.batchUpdate(sql, batchArgs);
+    }
+
+    private Integer getGrade(boolean grade) {
+        if (grade) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 }

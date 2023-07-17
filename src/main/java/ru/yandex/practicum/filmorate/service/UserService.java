@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
 import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.Operation;
 
@@ -20,14 +21,14 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final EventService eventService;
+    private final EventStorage eventStorage;
     private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage, EventStorage eventStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
-        this.eventService = eventService;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<User> getUsers() {
@@ -76,13 +77,13 @@ public class UserService {
 
         checkUser(id, friendId);
         userStorage.addFriend(id, friendId);
-        eventService.createEvent(id, EventType.FRIEND, Operation.ADD, friendId);
+        eventStorage.createEvent(id, EventType.FRIEND, Operation.ADD, friendId);
     }
 
     public void removeFromListFriend(int id, int friendId) {
         checkUser(id, friendId);
         userStorage.removeFriend(id, friendId);
-        eventService.createEvent(id, EventType.FRIEND, Operation.REMOVE, friendId);
+        eventStorage.createEvent(id, EventType.FRIEND, Operation.REMOVE, friendId);
     }
 
     public List<User> getListFriendsUserById(int id) {

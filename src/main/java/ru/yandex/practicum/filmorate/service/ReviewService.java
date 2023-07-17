@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
-import ru.yandex.practicum.filmorate.description.EventType;
-import ru.yandex.practicum.filmorate.description.Operation;
+import ru.yandex.practicum.filmorate.storage.interfaces.EventStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -23,20 +23,20 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-    private final UserService userService;
-    private final EventService eventService;
+    private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage, UserService userService, EventService eventService) {
+    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, EventStorage eventStorage) {
         this.reviewStorage = reviewStorage;
-        this.userService = userService;
-        this.eventService = eventService;
+        this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Review create(Review review) {
         validationBeforeCreate(review);
         Review newData = reviewStorage.create(review);
-        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getReviewId());
+        eventStorage.createEvent(newData.getUserId(), EventType.REVIEW, Operation.ADD, newData.getReviewId());
         return newData;
     }
 
@@ -47,7 +47,7 @@ public class ReviewService {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
         }
-        eventService.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getReviewId());
+        eventStorage.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getReviewId());
         return newData;
     }
 
@@ -68,8 +68,8 @@ public class ReviewService {
 
     public void delete(Integer id) {
         validateId(id);
-        Review review = findById(id);
-        eventService.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getReviewId());
+        Review review = this.findById(id);
+        eventStorage.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getReviewId());
         if (reviewStorage.delete(id) == 0) {
             log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
@@ -78,8 +78,6 @@ public class ReviewService {
 
     public List<Review> findAll() {
         List<Review> reviews = reviewStorage.findAll();
-        reviewStorage.loadAllGrades(reviews);
-        reviews.sort(Comparator.comparing(Review::getUseful).reversed());
         return reviews;
     }
 
@@ -89,7 +87,6 @@ public class ReviewService {
             log.warn(message);
             return new ObjectNotFoundException(message);
         });
-        reviewStorage.loadGrades(review);
         return review;
     }
 
@@ -110,23 +107,17 @@ public class ReviewService {
     }
 
     public void delLike(Integer id, Integer userId) {
-        delGrade(id, userId);
+        Review review = this.findById(id);
+        User user = userStorage.getById(userId);
+        validateForGrade(review, user);
+        reviewStorage.delGrade(id, userId);
     }
 
     private void addGrade(Integer id, Integer userId, boolean positive) {
         Review review = this.findById(id);
-        User user = userService.findUser(userId);
+        User user = userStorage.getById(userId);
         validateForGrade(review, user);
-        review.addGrade(userId, positive);
-        reviewStorage.saveGrades(review);
-    }
-
-    private void delGrade(Integer id, Integer userId) {
-        Review review = this.findById(id);
-        User user = userService.findUser(userId);
-        validateForGrade(review, user);
-        review.delGrade(userId);
-        reviewStorage.saveGrades(review);
+        reviewStorage.saveGrades(review, reviewStorage.addGrade(id, userId, positive));
     }
 
     private void validateForGrade(Review review, User user) {
@@ -149,7 +140,6 @@ public class ReviewService {
         } else {
             reviews = reviewStorage.findAllByFilm(filmId);
         }
-        reviewStorage.loadAllGrades(reviews);
 
         return reviews.stream()
                 .sorted(Comparator.comparing(Review::getUseful).reversed())
