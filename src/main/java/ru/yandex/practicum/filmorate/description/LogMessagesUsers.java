@@ -1,5 +1,10 @@
 package ru.yandex.practicum.filmorate.description;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum LogMessagesUsers {
     CREATE_USER("Создание пользователя"),
     FRIEND_ALREADY_ADD("Друг уже был добавлен ранее."),
@@ -26,13 +31,5 @@ public enum LogMessagesUsers {
     NO_FOUND("не найден");
 
     private final String message;
-
-    LogMessagesUsers(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 
 }

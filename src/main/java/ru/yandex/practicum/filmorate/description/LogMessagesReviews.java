@@ -1,8 +1,13 @@
 package ru.yandex.practicum.filmorate.description;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum LogMessagesReviews {
     MSG_ERR_ID("Некорректный id"),
-    MSG_ERR_NOT_FOUND("Не найдено по id "),
+    MSG_ERR_NOT_FOUND("Не найдено по ID = {}"),
     GET_ALL_REVIEWS_REQUEST("Получен запрос на получение всех отзывов."),
     GET_REVIEW_BY_ID_REQUEST("Получен запрос на получение отзыва с ID = {}"),
     CREATE_REVIEW_REQUEST("Получен запрос на создание отзыва."),
@@ -16,11 +21,4 @@ public enum LogMessagesReviews {
 
     private final String message;
 
-    LogMessagesReviews(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

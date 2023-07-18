@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,12 +17,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/mpa")
+@Validated
+@RequiredArgsConstructor
 public class MPAController {
     private final MpaService mpaService;
-
-    public MPAController(MpaService mpaService) {
-        this.mpaService = mpaService;
-    }
 
     @GetMapping
     public List<RatingMpa> getRatingsMpa() {
