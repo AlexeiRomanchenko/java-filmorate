@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.description.EventType;
 import ru.yandex.practicum.filmorate.description.LogMessagesReviews;
 import ru.yandex.practicum.filmorate.description.LogMessagesUsers;
 import ru.yandex.practicum.filmorate.description.Operation;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -39,34 +38,29 @@ public class ReviewService {
         validationBeforeUpdate(review);
         Review newData = reviewStorage.update(review);
         if (newData == null) {
-            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage(), review.getReviewId());
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + review.getReviewId());
         }
         eventStorage.createEvent(newData.getUserId(), EventType.REVIEW, Operation.UPDATE, newData.getReviewId());
         return newData;
     }
 
-    public void validationBeforeUpdate(Review review) {
+    private void validationBeforeUpdate(Review review) {
         validateId(review.getReviewId());
     }
 
-    public void validateId(Integer id) {
-        if (id == null) {
-            log.warn(LogMessagesReviews.MSG_ERR_ID.getMessage());
-            throw new BadRequestException(LogMessagesReviews.MSG_ERR_ID.getMessage());
-        }
+    private void validateId(Integer id) {
         if (id < 0) {
-            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage(), id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
         }
     }
 
     public void delete(Integer id) {
-        validateId(id);
         Review review = this.findById(id);
         eventStorage.createEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getReviewId());
         if (reviewStorage.delete(id) == 0) {
-            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
+            log.warn(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage(), id);
             throw new ObjectNotFoundException(LogMessagesReviews.MSG_ERR_NOT_FOUND.getMessage() + id);
         }
     }
@@ -86,7 +80,7 @@ public class ReviewService {
         });
     }
 
-    public void validationBeforeCreate(Review review) {
+    private void validationBeforeCreate(Review review) {
         validateId(review.getFilmId());
         validateId(review.getUserId());
         if (review.getIsPositive() == null) {

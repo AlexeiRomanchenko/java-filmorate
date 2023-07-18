@@ -5,8 +5,7 @@ import lombok.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @Builder
 @ToString

@@ -2,12 +2,10 @@ package ru.yandex.practicum.filmorate.storage.db.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
-import ru.yandex.practicum.filmorate.storage.db.FilmDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,11 +14,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-
-@Component
 @RequiredArgsConstructor
 public class FilmMapper {
-    private final FilmDbStorage filmStorage;
 
     public static Film makeFilm(ResultSet rs, int id) throws SQLException {
         int filmId = rs.getInt("film_id");

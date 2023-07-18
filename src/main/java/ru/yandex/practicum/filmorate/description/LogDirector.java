@@ -1,5 +1,10 @@
 package ru.yandex.practicum.filmorate.description;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum LogDirector {
     GET_ALL_FILMS_BY_DIRECTOR_REQUEST("Запрос на получение списка фильмов режиссера {}"),
     SORTED_BY("Отсортированный по {}"),
@@ -26,13 +31,5 @@ public enum LogDirector {
     TRANSFER_LIST_ALL_USERS("Передан список всех пользователей");
 
     private final String message;
-
-    LogDirector(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 
 }

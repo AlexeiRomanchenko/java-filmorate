@@ -1,5 +1,10 @@
 package ru.yandex.practicum.filmorate.description;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum LogMessagesFilms {
     USER_ALREADY_ADD_LIKE("Этот пользователь уже ставил лайк к этому фильму."),
     GET_ALL_FILMS_REQUEST("Получен запрос на получение всех фильмов."),
@@ -23,13 +28,5 @@ public enum LogMessagesFilms {
     SEARCH_FOR_FILM("Получен запрос на поиск фильма содержащем: \"%s\" в параметрах: \"%s\"");
 
     private final String message;
-
-    LogMessagesFilms(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 
 }
