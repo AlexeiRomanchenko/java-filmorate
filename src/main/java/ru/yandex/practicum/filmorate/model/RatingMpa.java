@@ -5,8 +5,7 @@ import lombok.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RatingMpa {
@@ -19,11 +18,9 @@ public class RatingMpa {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("RatingMpa{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "RatingMpa{" + "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 
 }

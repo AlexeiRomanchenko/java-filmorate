@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.*;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -20,6 +19,8 @@ public class User {
     private String email;
     private String login;
     private String name;
+    @PastOrPresent
+    @NotNull
     private LocalDate birthday;
 
     public void addFriendById(long id) {

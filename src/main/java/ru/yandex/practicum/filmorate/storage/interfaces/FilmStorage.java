@@ -1,16 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
-import ru.yandex.practicum.filmorate.model.Film;
-
-import java.util.Collection;
-
+import ru.yandex.practicum.filmorate.description.SearchParam;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface FilmStorage extends LikesStorage {
+    List<Film> getDirectorsFilms(int directorId, String sortBy);
 
     Collection<Film> getFilms();
 
@@ -18,9 +18,9 @@ public interface FilmStorage extends LikesStorage {
 
     Film update(Film film);
 
-    String delete(int id);
+    void delete(int id);
 
-    Film getById(Integer id);
+    Optional<Film> getById(Integer id);
 
     void addGenre(int filmId, Set<Genre> genres);
 
@@ -28,4 +28,7 @@ public interface FilmStorage extends LikesStorage {
 
     void clearDbLikes();
 
+    List<Film> findRecommendations(Integer id);
+
+    Collection<Film> findSearchedFilm(String query, List<SearchParam> searchParams);
 }

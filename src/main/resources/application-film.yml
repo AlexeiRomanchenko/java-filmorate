@@ -1,0 +1,33 @@
+film:
+  requestAllFilms: "SELECT f.*, mpa.rating_name 
+                    FROM films f 
+                    LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id 
+                    ORDER BY film_id"
+  requestCommonFilmForTwoUsers: "SELECT * FROM films 
+                                JOIN rating_mpa ON films.rating_id = rating_mpa.rating_id
+                                WHERE film_id IN
+                                    (SELECT l1.film_id FROM likes l1, likes l2 
+                                    WHERE l1.film_id = l2.film_id AND l1.user_id = ? AND l2.user_id = ? )"
+  get-recommended-films-by-user: "WITH likes_rank AS 
+                                     (SELECT similar.user_id, COUNT(*) rank 
+                                     FROM likes target 
+                                     JOIN likes similar ON target.film_id = similar.film_id AND target.user_id != similar.user_id 
+                                     WHERE target.user_id = ? 
+                                     GROUP BY similar.user_id) 
+                                 SELECT f.*, mpa.rating_name 
+                                 FROM films f 
+                                 LEFT JOIN likes similar ON similar.film_id = f.film_id 
+                                 LEFT JOIN rating_mpa mpa ON f.rating_id = mpa.rating_id 
+                                 JOIN likes_rank ON likes_rank.user_id = similar.user_id 
+                                 LEFT JOIN likes target ON target.user_id = ? AND target.film_id = similar.film_id 
+                                 WHERE target.film_id IS NULL 
+                                 GROUP BY similar.film_id 
+                                 ORDER BY SUM(likes_rank.rank) DESC;"
+  search-for-films: "SELECT f.*, rating_mpa.rating_name FROM films f 
+                    LEFT JOIN likes ON likes.film_id = f.film_id 
+                    LEFT JOIN rating_mpa ON f.rating_id = rating_mpa.rating_id 
+                    LEFT JOIN films_directors fd ON f.film_id = fd.film_id 
+                    LEFT JOIN directors d ON d.director_id = fd.director_id 
+                    WHERE %s LIKE ? 
+                    GROUP BY f.film_id 
+                    ORDER BY COUNT (likes.film_id) DESC "

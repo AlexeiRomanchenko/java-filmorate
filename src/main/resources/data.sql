@@ -5,7 +5,7 @@ MERGE INTO genres (genre_id, genre_name)
            (4, 'Триллер'),
            (5, 'Документальный'),
            (6, 'Боевик')
-           ;
+;
 
 MERGE INTO rating_mpa (rating_id, rating_name)
     VALUES (1, 'G'),
@@ -13,4 +13,4 @@ MERGE INTO rating_mpa (rating_id, rating_name)
            (3, 'PG-13'),
            (4, 'R'),
            (5, 'NC-17')
-           ;
+;
